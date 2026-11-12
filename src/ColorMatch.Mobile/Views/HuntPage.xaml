@@ -2,7 +2,8 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
-             x:Class="ColorMatch.Mobile.Views.HuntPage">
+             x:Class="ColorMatch.Mobile.Views.HuntPage"
+             controls:NavBar.Tab="hunt" controls:NavBar.Visible="{Binding ShowNavBar}">
     <ContentPage.Resources>
         <!-- the three hunts as tabs: easy / medium / hard -->
         <Style x:Key="HuntTab" TargetType="Border">
@@ -341,7 +342,7 @@
             </Grid>
         </Grid>
 
-        <controls:BottomBar Grid.Row="1" ActiveTab="hunt" IsVisible="{Binding NoPhoto}" />
+        <BoxView Grid.Row="1" HeightRequest="86" Color="Transparent" InputTransparent="True" IsVisible="{Binding ShowNavBar}" />
 
         <!-- the live camera covers the whole screen (bar included) while it is open -->
         <controls:LiveCamera x:Name="Camera" Grid.RowSpan="2" IsVisible="{Binding IsCameraOpen}" IsActive="{Binding IsCameraOpen}"

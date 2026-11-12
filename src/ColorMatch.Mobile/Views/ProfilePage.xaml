@@ -4,6 +4,7 @@
              xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
              xmlns:vm="clr-namespace:ColorMatch.Mobile.ViewModels"
              x:Class="ColorMatch.Mobile.Views.ProfilePage"
+             controls:NavBar.Visible="{Binding CanGoBack, Converter={StaticResource Not}}"
              SizeChanged="OnPageSizeChanged">
     <ContentPage.Resources>
         <!-- gallery filter chip -->
@@ -216,6 +217,5 @@
             <controls:StateView ErrorMessage="{Binding ErrorMessage}" RetryCommand="{Binding LoadCommand}" />
         </Grid>
 
-        <controls:BottomBar Grid.RowSpan="2" VerticalOptions="End" ActiveTab="me" IsVisible="{Binding CanGoBack, Converter={StaticResource Not}}" />
     </Grid>
 </ContentPage>

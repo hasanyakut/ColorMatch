@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
              xmlns:vm="clr-namespace:ColorMatch.Mobile.ViewModels"
-             x:Class="ColorMatch.Mobile.Views.FeedPage">
+             x:Class="ColorMatch.Mobile.Views.FeedPage"
+             controls:NavBar.Tab="feed" controls:NavBar.Visible="True">
     <Grid RowDefinitions="*,Auto">
         <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
 
@@ -170,6 +171,5 @@
             </Grid>
         </Grid>
 
-        <controls:BottomBar Grid.RowSpan="2" VerticalOptions="End" ActiveTab="feed" />
     </Grid>
 </ContentPage>

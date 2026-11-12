@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
              xmlns:vm="clr-namespace:ColorMatch.Mobile.ViewModels"
-             x:Class="ColorMatch.Mobile.Views.ChallengesPage">
+             x:Class="ColorMatch.Mobile.Views.ChallengesPage"
+             controls:NavBar.Tab="challenges" controls:NavBar.Visible="True">
     <Grid RowDefinitions="*,Auto">
         <ScrollView>
             <VerticalStackLayout Padding="20,12,20,112" Spacing="20">
@@ -135,6 +136,5 @@
                 </VerticalStackLayout>
             </VerticalStackLayout>
         </ScrollView>
-        <controls:BottomBar Grid.RowSpan="2" VerticalOptions="End" ActiveTab="challenges" />
     </Grid>
 </ContentPage>

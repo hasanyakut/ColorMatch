@@ -11,6 +11,7 @@ public static class Reveal
     public static bool GetStagger(BindableObject b) => (bool)b.GetValue(StaggerProperty);
     public static void SetStagger(BindableObject b, bool value) => b.SetValue(StaggerProperty, value);
 
+    private static readonly BindableProperty PlayedProperty = BindableProperty.CreateAttached("Played", typeof(bool), typeof(Reveal), false);
     private static readonly BindableProperty LastPlayedProperty = BindableProperty.CreateAttached("LastPlayed", typeof(DateTime), typeof(Reveal), DateTime.MinValue);
     private static readonly BindableProperty HookedPageProperty = BindableProperty.CreateAttached("HookedPage", typeof(Page), typeof(Reveal), null);
 
@@ -19,7 +20,8 @@ public static class Reveal
     private static void OnChanged(BindableObject b, object? oldValue, object? newValue)
     {
         if (b is not Layout layout || newValue is not true) return;
-        layout.Loaded += (_, _) => { Hook(layout); _ = PlayAsync(layout); };
+        // once when the screen is first shown; later visits show their (cached) content at once, so a tab switch never replays an entrance
+        layout.Loaded += (_, _) => { if (!(bool)layout.GetValue(PlayedProperty)) { layout.SetValue(PlayedProperty, true); _ = PlayAsync(layout); } };
         layout.PropertyChanged += (_, e) =>
         {
             // content that appears after loading (IsVisible bound to "Loaded") gets the same entrance

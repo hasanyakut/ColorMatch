@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
              xmlns:vm="clr-namespace:ColorMatch.Mobile.ViewModels"
-             x:Class="ColorMatch.Mobile.Views.CreatePage">
+             x:Class="ColorMatch.Mobile.Views.CreatePage"
+             controls:NavBar.Visible="True">
     <ContentPage.Resources>
         <!-- editor tab: icon + label; the selected tool is filled with the soft accent -->
         <Style x:Key="ToolTab" TargetType="Border">
@@ -242,7 +243,7 @@
             </VerticalStackLayout>
         </Border>
 
-        <controls:BottomBar Grid.Row="3" ActiveTab="create" />
+        <BoxView Grid.Row="3" HeightRequest="86" Color="Transparent" InputTransparent="True" />
 
         <controls:CaptionSheet Grid.RowSpan="4" IsOpen="{Binding IsCaptionOpen}" Text="{Binding CaptionText, Mode=TwoWay}" Title="Kolajına not ekle"
                                Subtitle="İstersen kolajınla ilgili birkaç söz yaz." ConfirmText="Yayınla"

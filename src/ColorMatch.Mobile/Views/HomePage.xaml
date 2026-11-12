@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
              xmlns:vm="clr-namespace:ColorMatch.Mobile.ViewModels"
-             x:Class="ColorMatch.Mobile.Views.HomePage">
+             x:Class="ColorMatch.Mobile.Views.HomePage"
+             controls:NavBar.Tab="home" controls:NavBar.Visible="True">
     <Grid RowDefinitions="*,Auto">
         <Grid>
             <RefreshView IsRefreshing="{Binding IsRefreshing, Mode=TwoWay}" Command="{Binding LoadCommand}">
@@ -345,6 +346,5 @@
             <controls:StateView x:Name="State" ErrorMessage="{Binding ErrorMessage}" RetryCommand="{Binding LoadCommand}" />
         </Grid>
 
-        <controls:BottomBar Grid.RowSpan="2" VerticalOptions="End" ActiveTab="home" />
     </Grid>
 </ContentPage>

@@ -23,7 +23,7 @@ public partial class HuntViewModel(IGameService game, IApiClient api, ImageServi
     public HuntTaskItem? MediumTask => Tasks.FirstOrDefault(t => t.Level == 2);
     public HuntTaskItem? HardTask => Tasks.FirstOrDefault(t => t.Level == 3);
     public HuntTaskItem? SelectedTask => Tasks.FirstOrDefault(t => t.Id == Hunt?.Id);
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(HasPhoto)), NotifyPropertyChangedFor(nameof(NoPhoto))] private string? photoPath;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(HasPhoto)), NotifyPropertyChangedFor(nameof(NoPhoto)), NotifyPropertyChangedFor(nameof(ShowNavBar))] private string? photoPath;
     [ObservableProperty] private double photoAspect = 1;
     [ObservableProperty] private double selX = 0.5;
     [ObservableProperty] private double selY = 0.5;
@@ -221,7 +221,9 @@ public partial class HuntViewModel(IGameService game, IApiClient api, ImageServi
     }
 
     /// <summary>True while the in-app live camera covers the screen.</summary>
-    [ObservableProperty] private bool isCameraOpen;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(ShowNavBar))] private bool isCameraOpen;
+    /// <summary>The navigation bar belongs to the "see the target" step only: not while a photo is being marked and not under the live camera.</summary>
+    public bool ShowNavBar => NoPhoto && !IsCameraOpen;
 
     [RelayCommand]
     private async Task TakePhotoAsync()

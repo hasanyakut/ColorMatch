@@ -4,6 +4,7 @@
              xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
              xmlns:vm="clr-namespace:ColorMatch.Mobile.ViewModels"
              x:Class="ColorMatch.Mobile.Views.AtlasPage"
+             controls:NavBar.Tab="atlas" controls:NavBar.Visible="True"
              SizeChanged="OnPageSizeChanged">
     <Grid RowDefinitions="*,Auto">
     <ScrollView>
@@ -129,6 +130,5 @@
             </VerticalStackLayout>
         </VerticalStackLayout>
     </ScrollView>
-    <controls:BottomBar Grid.RowSpan="2" VerticalOptions="End" ActiveTab="atlas" />
     </Grid>
 </ContentPage>
