@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
+             xmlns:vm="clr-namespace:ColorMatch.Mobile.ViewModels"
+             x:Class="ColorMatch.Mobile.Views.DuelsPage">
+    <ScrollView>
+        <VerticalStackLayout Padding="20,8,20,40" Spacing="16">
+
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                <controls:IconButton Kind="arrow-left" Tone="soft" Label="Geri" Command="{Binding BackCommand}" />
+                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="0">
+                    <Label Text="Arkadaş düelloları" Style="{StaticResource LargeTitle}" />
+                    <Label Text="{Binding SummaryText}" Style="{StaticResource Caption}" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- loading -->
+            <VerticalStackLayout Spacing="12" IsVisible="{Binding ShowSkeleton}">
+                <controls:SkeletonView HeightRequest="44" Radius="14" />
+                <controls:SkeletonView HeightRequest="120" Radius="22" />
+                <controls:SkeletonView HeightRequest="120" Radius="22" />
+            </VerticalStackLayout>
+
+            <!-- error -->
+            <VerticalStackLayout Spacing="10" IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource ErrorText}" />
+                <controls:AppButton Text="Tekrar dene" Kind="secondary" Command="{Binding LoadCommand}" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="16" IsVisible="{Binding Loaded}" controls:Reveal.Stagger="True">
+
+                <controls:AppButton Text="Yeni düello" Command="{Binding TogglePickerCommand}" />
+
+                <Label Text="{Binding InfoMessage}" Style="{StaticResource Caption}" IsVisible="{Binding InfoMessage, Converter={StaticResource NotEmpty}}" />
+
+                <!-- friend picker -->
+                <VerticalStackLayout Spacing="8" IsVisible="{Binding ShowPicker}">
+                    <Label Text="Kime meydan okuyorsun?" Style="{StaticResource Headline}" />
+                    <Label Text="{Binding NoFriendsText}" Style="{StaticResource Caption}" IsVisible="{Binding HasNoFriends}" />
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Friends}" Spacing="8">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 18" Padding="14,10" controls:Interact.TapFeedback="True"
+                                        SemanticProperties.Description="{Binding UserName, StringFormat='{0} ile düello başlat'}">
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                        <VerticalStackLayout VerticalOptions="Center" Spacing="0">
+                                            <Label Text="{Binding UserName}" FontFamily="SansSemibold" FontSize="15" />
+                                            <Label Text="{Binding Level, StringFormat='Seviye {0}'}" Style="{StaticResource Caption}" />
+                                        </VerticalStackLayout>
+                                        <controls:IconView Grid.Column="1" Kind="chevron-right" Size="18" Muted="True" VerticalOptions="Center" />
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding ChallengeCommand, Source={RelativeSource AncestorType={x:Type vm:DuelsViewModel}}}" CommandParameter="{Binding .}" />
+                                        </Grid.GestureRecognizers>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- empty -->
+                <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 22" Padding="18" IsVisible="{Binding ShowEmpty}">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Henüz düello yok" Style="{StaticResource Headline}" />
+                        <Label Text="Bir arkadaşını seç, aynı rengi ikiniz de bulmaya çalışın. En yüksek skor kazanır." Style="{StaticResource Caption}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- the duels -->
+                <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Duels}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 22" Padding="14" SemanticProperties.Description="{Binding Description}">
+                                <VerticalStackLayout Spacing="10">
+                                    <Grid ColumnDefinitions="48,*" ColumnSpacing="12">
+                                        <Border WidthRequest="48" HeightRequest="48" StrokeThickness="0" StrokeShape="RoundRectangle 14"
+                                                BackgroundColor="{Binding ColorHex, Converter={StaticResource HexToColor}}">
+                                            <Label Text="?" HorizontalOptions="Center" VerticalOptions="Center" FontFamily="SansBold" FontSize="18" TextColor="White"
+                                                   IsVisible="{Binding ColorHidden}" />
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
+                                            <Label Text="{Binding Title}" FontFamily="SansBold" FontSize="15" />
+                                            <Label Text="{Binding ColorText}" Style="{StaticResource Caption}" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+
+                                    <Label Text="{Binding StatusText}" FontFamily="SansSemibold" FontSize="14" />
+                                    <Label Text="{Binding ScoreText}" Style="{StaticResource Caption}" IsVisible="{Binding HasScoreText}" />
+                                    <Label Text="{Binding TimeText}" Style="{StaticResource Caption}" IsVisible="{Binding HasTimeText}" />
+
+                                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" IsVisible="{Binding ShowRespond}">
+                                        <controls:AppButton Text="Kabul et" Compact="True"
+                                                            Command="{Binding AcceptCommand, Source={RelativeSource AncestorType={x:Type vm:DuelsViewModel}}}" CommandParameter="{Binding .}" />
+                                        <controls:AppButton Grid.Column="1" Text="Reddet" Kind="secondary" Compact="True"
+                                                            Command="{Binding DeclineCommand, Source={RelativeSource AncestorType={x:Type vm:DuelsViewModel}}}" CommandParameter="{Binding .}" />
+                                    </Grid>
+                                    <controls:AppButton Text="Daveti geri al" Kind="secondary" Compact="True" IsVisible="{Binding ShowWithdraw}"
+                                                        Command="{Binding DeclineCommand, Source={RelativeSource AncestorType={x:Type vm:DuelsViewModel}}}" CommandParameter="{Binding .}" />
+                                    <controls:AppButton Text="Rövanş iste" Kind="secondary" Compact="True" IsVisible="{Binding ShowRematch}"
+                                                        Command="{Binding RematchCommand, Source={RelativeSource AncestorType={x:Type vm:DuelsViewModel}}}" CommandParameter="{Binding .}" />
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" IsVisible="{Binding ShowPlay}">
+                                        <controls:AppButton Text="{Binding PlayText}"
+                                                            Command="{Binding PlayCommand, Source={RelativeSource AncestorType={x:Type vm:DuelsViewModel}}}" CommandParameter="{Binding .}" />
+                                        <controls:AppButton Grid.Column="1" Text="Bitir" Kind="secondary" IsVisible="{Binding ShowFinish}"
+                                                            Command="{Binding FinishCommand, Source={RelativeSource AncestorType={x:Type vm:DuelsViewModel}}}" CommandParameter="{Binding .}" />
+                                    </Grid>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <Label Text="{Binding RulesText}" Style="{StaticResource Caption}" />
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

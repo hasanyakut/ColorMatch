@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
+             xmlns:vm="clr-namespace:ColorMatch.Mobile.ViewModels"
+             x:Class="ColorMatch.Mobile.Views.FeedPage">
+    <Grid RowDefinitions="*,Auto">
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
+
+            <!-- header -->
+            <Grid Padding="20,12,16,0" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="4">
+                <Label Text="Topluluk" Style="{StaticResource LargeTitle}" VerticalOptions="Center" />
+                <Grid Grid.Column="1">
+                    <controls:IconButton Kind="users" Tone="plain" Label="Arkadaşlar" Command="{Binding OpenFriendsCommand}" />
+                    <Border IsVisible="{Binding HasPendingRequests}" HorizontalOptions="End" VerticalOptions="Start" Margin="0,4,2,0" InputTransparent="True"
+                            MinimumWidthRequest="18" HeightRequest="18" Padding="5,0" StrokeShape="RoundRectangle 9" StrokeThickness="0"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}">
+                        <Label Text="{Binding PendingText}" FontSize="10" FontFamily="SansSemibold" HorizontalOptions="Center" VerticalOptions="Center" LineHeight="1"
+                               TextColor="{AppThemeBinding Light={StaticResource OnAccentLight}, Dark={StaticResource OnAccentDark}}" />
+                    </Border>
+                </Grid>
+                <controls:IconButton Grid.Column="2" Kind="plus" Tone="accent" Label="Fotoğraf paylaş" Command="{Binding SharePhotoCommand}" IsEnabled="{Binding IsNotBusy}" />
+            </Grid>
+
+            <!-- tabs: typographic, underlined -->
+            <HorizontalStackLayout Grid.Row="1" Spacing="26" Padding="20,10,20,4">
+                <VerticalStackLayout Spacing="6" SemanticProperties.Description="Arkadaşlar sekmesi">
+                    <Label Text="Arkadaşlar">
+                        <Label.Style>
+                            <Style TargetType="Label" BasedOn="{StaticResource Headline}">
+                                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource InkMutedLight}, Dark={StaticResource InkMutedDark}}" />
+                                <Style.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsFriendsTab}" Value="True">
+                                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource InkLight}, Dark={StaticResource InkDark}}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+                    <Border HeightRequest="3" StrokeThickness="0" StrokeShape="RoundRectangle 2" IsVisible="{Binding IsFriendsTab}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}" />
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SetScopeCommand}" CommandParameter="friends" />
+                    </VerticalStackLayout.GestureRecognizers>
+                </VerticalStackLayout>
+                <VerticalStackLayout Spacing="6" SemanticProperties.Description="Keşfet sekmesi">
+                    <Label Text="Keşfet">
+                        <Label.Style>
+                            <Style TargetType="Label" BasedOn="{StaticResource Headline}">
+                                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource InkMutedLight}, Dark={StaticResource InkMutedDark}}" />
+                                <Style.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsDiscoverTab}" Value="True">
+                                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource InkLight}, Dark={StaticResource InkDark}}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+                    <Border HeightRequest="3" StrokeThickness="0" StrokeShape="RoundRectangle 2" IsVisible="{Binding IsDiscoverTab}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}" />
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SetScopeCommand}" CommandParameter="all" />
+                    </VerticalStackLayout.GestureRecognizers>
+                </VerticalStackLayout>
+            </HorizontalStackLayout>
+            <BoxView Grid.Row="1" Style="{StaticResource Hairline}" VerticalOptions="End" />
+
+            <!-- discovery: browse by colour (swatches double as the filter) -->
+            <ScrollView Grid.Row="2" Orientation="Horizontal" HorizontalScrollBarVisibility="Never" IsVisible="{Binding IsDiscoverTab}" Margin="0,12,0,4">
+                <HorizontalStackLayout Spacing="14" Padding="20,2">
+                    <VerticalStackLayout Spacing="4" VerticalOptions="Start">
+                        <Border HeightRequest="42" WidthRequest="62" StrokeShape="RoundRectangle 21" StrokeThickness="0" HorizontalOptions="Center">
+                            <Border.Style>
+                                <Style TargetType="Border" BasedOn="{StaticResource Chip}">
+                                    <Style.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding NoFamilySelected}" Value="True">
+                                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource InkLight}, Dark={StaticResource InkDark}}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Label Text="Tümü" FontFamily="SansSemibold" FontSize="13" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding NoFamilySelected}" Value="True">
+                                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnInkLight}, Dark={StaticResource OnInkDark}}" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectFamilyCommand}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </VerticalStackLayout>
+                    <HorizontalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Facets}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate>
+                                <VerticalStackLayout Spacing="2" VerticalOptions="Start" SemanticProperties.Description="{Binding Family}">
+                                    <controls:ColorSwatch Hex="{Binding Hex}" Size="36" IsSelected="{Binding IsSelected}"
+                                                          Command="{Binding SelectFamilyCommand, Source={RelativeSource AncestorType={x:Type vm:FeedViewModel}}}" CommandParameter="{Binding .}" />
+                                    <Label Text="{Binding CountText}" Style="{StaticResource Caption}" FontSize="11" HorizontalTextAlignment="Center" />
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </HorizontalStackLayout>
+                </HorizontalStackLayout>
+            </ScrollView>
+
+            <Label Grid.Row="3" Text="{Binding InfoMessage}" Padding="20,4" Style="{StaticResource Caption}" IsVisible="{Binding InfoMessage, Converter={StaticResource NotEmpty}}" />
+
+            <Grid Grid.Row="4">
+                <!-- friends: single-column social posts -->
+                <RefreshView IsRefreshing="{Binding IsRefreshing, Mode=TwoWay}" Command="{Binding RefreshCommand}" IsVisible="{Binding IsFriendsTab}">
+                    <CollectionView ItemsSource="{Binding Items}" SelectionMode="None" RemainingItemsThreshold="3" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="28" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.Header><BoxView HeightRequest="2" Color="Transparent" /></CollectionView.Header>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <controls:SocialPostCard
+                                    OpenCommand="{Binding OpenPostCommand, Source={RelativeSource AncestorType={x:Type vm:FeedViewModel}}}"
+                                    AuthorCommand="{Binding OpenProfileCommand, Source={RelativeSource AncestorType={x:Type vm:FeedViewModel}}}" />
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                        <CollectionView.Footer>
+                            <VerticalStackLayout>
+                                <ActivityIndicator IsRunning="{Binding IsLoadingMore}" IsVisible="{Binding IsLoadingMore}" HeightRequest="56" />
+                                <BoxView HeightRequest="96" Color="Transparent" />
+                            </VerticalStackLayout>
+                        </CollectionView.Footer>
+                    </CollectionView>
+                </RefreshView>
+
+                <!-- discovery: staggered two-column grid -->
+                <RefreshView IsRefreshing="{Binding IsRefreshing, Mode=TwoWay}" Command="{Binding RefreshCommand}" IsVisible="{Binding IsDiscoverTab}">
+                    <controls:MasonryView Items="{Binding Items}" ItemCommand="{Binding OpenPostCommand}" LoadMoreCommand="{Binding LoadMoreCommand}">
+                        <controls:MasonryView.Header>
+                            <!-- what you are browsing: all colours or one family -->
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="0" Padding="0,10,20,8">
+                                <Border WidthRequest="40" HeightRequest="40" Margin="0,0,12,0" StrokeShape="RoundRectangle 12" StrokeThickness="0" IsVisible="{Binding HasDiscoverColor}" VerticalOptions="Center"
+                                        BackgroundColor="{Binding DiscoverHex, Converter={StaticResource HexToColor}}" />
+                                <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                                    <Label Text="{Binding DiscoverTitle}" Style="{StaticResource Title}" />
+                                    <Label Text="{Binding DiscoverSubtitle}" Style="{StaticResource Caption}" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </controls:MasonryView.Header>
+                    </controls:MasonryView>
+                </RefreshView>
+
+                <!-- loading skeleton: same silhouette as a post -->
+                <Grid IsVisible="{Binding ShowInitialLoading}" InputTransparent="True" BackgroundColor="{AppThemeBinding Light={StaticResource BgLight}, Dark={StaticResource BgDark}}">
+                <controls:PulseHost IsVisible="{Binding ShowInitialLoading}">
+                <VerticalStackLayout Padding="20,18" Spacing="12">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <controls:SkeletonView WidthRequest="36" HeightRequest="36" Radius="18" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                            <controls:SkeletonView WidthRequest="120" HeightRequest="12" Radius="6" HorizontalOptions="Start" />
+                            <controls:SkeletonView WidthRequest="60" HeightRequest="10" Radius="5" HorizontalOptions="Start" />
+                        </VerticalStackLayout>
+                    </Grid>
+                    <controls:SkeletonView HeightRequest="360" Radius="24" />
+                    <controls:SkeletonView WidthRequest="200" HeightRequest="14" Radius="7" HorizontalOptions="Start" />
+                </VerticalStackLayout>
+                </controls:PulseHost>
+                </Grid>
+
+                <controls:StateView IsLoading="False" ErrorMessage="{Binding ErrorMessage}" IsEmpty="{Binding IsEmpty}" EmptyIcon="image"
+                                    EmptyTitle="Burada henüz bir şey yok" EmptyText="{Binding EmptyText}" RetryCommand="{Binding RefreshCommand}" />
+            </Grid>
+        </Grid>
+
+        <controls:BottomBar Grid.RowSpan="2" VerticalOptions="End" ActiveTab="feed" />
+    </Grid>
+</ContentPage>

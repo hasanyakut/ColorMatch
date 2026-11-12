@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
+             x:Class="ColorMatch.Mobile.Views.HuntPage">
+    <ContentPage.Resources>
+        <!-- the three hunts as tabs: easy / medium / hard -->
+        <Style x:Key="HuntTab" TargetType="Border">
+            <Setter Property="StrokeThickness" Value="0" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 14" />
+            <Setter Property="Padding" Value="8,0" />
+            <Setter Property="MinimumHeightRequest" Value="46" />
+            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}" />
+        </Style>
+        <Style x:Key="HuntTabLabel" TargetType="Label">
+            <Setter Property="FontFamily" Value="{StaticResource FontStrong}" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="*,Auto">
+        <Grid>
+
+            <!-- ====================== STEP 1-2: see the target, open the camera ====================== -->
+            <Grid IsVisible="{Binding NoPhoto}" RowDefinitions="Auto,*,Auto" Padding="16,8,16,10" RowSpacing="14">
+
+                <VerticalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <controls:IconButton Kind="arrow-left" Tone="soft" Size="44" Label="Geri" Command="{Binding BackCommand}" />
+                        <Label Grid.Column="1" Text="{Binding PageTitle}" Style="{StaticResource Headline}" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8" IsVisible="{Binding ShowTabs}">
+                    <Border Style="{StaticResource HuntTab}" controls:Interact.TapFeedback="True" SemanticProperties.Description="Kolay av">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding EasyTask.IsSelected}" Value="True">
+                                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource InkLight}, Dark={StaticResource InkDark}}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <HorizontalStackLayout Spacing="7" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Border WidthRequest="14" HeightRequest="14" StrokeShape="RoundRectangle 7" StrokeThickness="1" Stroke="#40808080"
+                                    BackgroundColor="{Binding EasyTask.Hex, Converter={StaticResource HexToColor}}" VerticalOptions="Center" />
+                            <Label Text="Kolay" Style="{StaticResource HuntTabLabel}">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding EasyTask.IsSelected}" Value="True">
+                                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnInkLight}, Dark={StaticResource OnInkDark}}" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <controls:IconView Kind="check" Size="14" StrokeWidth="2.6" IsVisible="{Binding EasyTask.IsCompleted}" VerticalOptions="Center"
+                                               Tint="{AppThemeBinding Light={StaticResource SuccessLight}, Dark={StaticResource SuccessDark}}" />
+                        </HorizontalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SelectHuntCommand}" CommandParameter="{Binding EasyTask}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource HuntTab}" controls:Interact.TapFeedback="True" SemanticProperties.Description="Orta av">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding MediumTask.IsSelected}" Value="True">
+                                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource InkLight}, Dark={StaticResource InkDark}}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <HorizontalStackLayout Spacing="7" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Border WidthRequest="14" HeightRequest="14" StrokeShape="RoundRectangle 7" StrokeThickness="1" Stroke="#40808080"
+                                    BackgroundColor="{Binding MediumTask.Hex, Converter={StaticResource HexToColor}}" VerticalOptions="Center" />
+                            <Label Text="Orta" Style="{StaticResource HuntTabLabel}">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding MediumTask.IsSelected}" Value="True">
+                                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnInkLight}, Dark={StaticResource OnInkDark}}" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <controls:IconView Kind="check" Size="14" StrokeWidth="2.6" IsVisible="{Binding MediumTask.IsCompleted}" VerticalOptions="Center"
+                                               Tint="{AppThemeBinding Light={StaticResource SuccessLight}, Dark={StaticResource SuccessDark}}" />
+                        </HorizontalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SelectHuntCommand}" CommandParameter="{Binding MediumTask}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource HuntTab}" controls:Interact.TapFeedback="True" SemanticProperties.Description="Zor av">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding HardTask.IsSelected}" Value="True">
+                                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource InkLight}, Dark={StaticResource InkDark}}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <HorizontalStackLayout Spacing="7" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Border WidthRequest="14" HeightRequest="14" StrokeShape="RoundRectangle 7" StrokeThickness="1" Stroke="#40808080"
+                                    BackgroundColor="{Binding HardTask.Hex, Converter={StaticResource HexToColor}}" VerticalOptions="Center" />
+                            <Label Text="Zor" Style="{StaticResource HuntTabLabel}">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding HardTask.IsSelected}" Value="True">
+                                        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnInkLight}, Dark={StaticResource OnInkDark}}" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <controls:IconView Kind="check" Size="14" StrokeWidth="2.6" IsVisible="{Binding HardTask.IsCompleted}" VerticalOptions="Center"
+                                               Tint="{AppThemeBinding Light={StaticResource SuccessLight}, Dark={StaticResource SuccessDark}}" />
+                        </HorizontalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SelectHuntCommand}" CommandParameter="{Binding HardTask}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                    </Grid>
+                </VerticalStackLayout>
+
+                <!-- the target, shown as a flat field of the colour itself -->
+                <Border Grid.Row="1" IsVisible="{Binding ShowStage}" StrokeShape="RoundRectangle 28" StrokeThickness="0" Padding="0"
+                        BackgroundColor="{Binding Hunt.Hex, Converter={StaticResource HexToColor}}"
+                        SemanticProperties.Description="Bugünün hedef rengi">
+                    <Grid RowDefinitions="Auto,*,Auto" Padding="22,20,22,22">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Border HorizontalOptions="Start" Padding="11,6" StrokeShape="RoundRectangle 12" BackgroundColor="Transparent" StrokeThickness="1.2" Opacity="0.85"
+                                    Stroke="{Binding Hunt.Hex, Converter={StaticResource HexToInkBrush}}">
+                                <Label Text="{Binding PillText}" FontFamily="SansSemibold" FontSize="12" TextColor="{Binding Hunt.Hex, Converter={StaticResource HexToInk}}" />
+                            </Border>
+                            <Label Grid.Column="1" Text="{Binding RewardText}" FontFamily="SansBold" FontSize="18" VerticalOptions="Center"
+                                   TextColor="{Binding Hunt.Hex, Converter={StaticResource HexToInk}}" />
+                        </Grid>
+
+                        <VerticalStackLayout Grid.Row="2" Spacing="10">
+                            <Label Text="Bu renkte bir şey bul" FontSize="14" Opacity="0.82" TextColor="{Binding Hunt.Hex, Converter={StaticResource HexToInk}}" />
+                            <Label Text="{Binding Hunt.Name}" Style="{StaticResource Display}" FontSize="34" LineBreakMode="TailTruncation" MaxLines="2"
+                                   TextColor="{Binding Hunt.Hex, Converter={StaticResource HexToInk}}" />
+                            <Label Text="{Binding Hunt.Hex}" FontFamily="SansSemibold" FontSize="14" CharacterSpacing="1.8" Opacity="0.85"
+                                   TextColor="{Binding Hunt.Hex, Converter={StaticResource HexToInk}}" />
+                            <Label Text="{Binding StatusLine}" FontSize="13" Opacity="0.9"
+                                   TextColor="{Binding Hunt.Hex, Converter={StaticResource HexToInk}}" />
+                            <HorizontalStackLayout Spacing="6" Margin="0,6,0,0" BindableLayout.ItemsSource="{Binding Tones}" SemanticProperties.Description="Rengin açık ve koyu tonları">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border WidthRequest="24" HeightRequest="24" StrokeShape="RoundRectangle 8" StrokeThickness="0"
+                                                BackgroundColor="{Binding Hex, Converter={StaticResource HexToColor}}">
+                                            <Border.Triggers>
+                                                <DataTrigger TargetType="Border" Binding="{Binding IsBase}" Value="True">
+                                                    <Setter Property="StrokeThickness" Value="2" />
+                                                    <Setter Property="Stroke" Value="White" />
+                                                </DataTrigger>
+                                            </Border.Triggers>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- today's colour is still loading -->
+                <controls:PulseHost Grid.Row="1" IsVisible="{Binding ChallengeLoading}" InputTransparent="True">
+                    <controls:SkeletonView Radius="28" />
+                </controls:PulseHost>
+
+                <!-- state: camera permission denied -->
+                <Border Grid.Row="1" IsVisible="{Binding IsPermissionDenied}" Style="{StaticResource Card}" StrokeShape="RoundRectangle 28" Padding="26">
+                    <VerticalStackLayout Spacing="14" VerticalOptions="Center" HorizontalOptions="Fill">
+                        <Border WidthRequest="64" HeightRequest="64" StrokeShape="RoundRectangle 24" StrokeThickness="0" HorizontalOptions="Center"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource WarningSoftLight}, Dark={StaticResource WarningSoftDark}}">
+                            <controls:IconView Kind="lock" Size="28" HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+                        <Label Text="Kamera izni gerekli" Style="{StaticResource Title}" HorizontalTextAlignment="Center" />
+                        <Label Text="Rengi bulmak için fotoğraf çekmen gerekiyor. İzni Ayarlar'dan açabilir ya da galerideki bir fotoğrafı kullanabilirsin."
+                               Style="{StaticResource Muted}" HorizontalTextAlignment="Center" />
+                        <controls:AppButton Text="Ayarları aç" Kind="primary" Command="{Binding OpenSettingsCommand}" />
+                        <controls:AppButton Text="Galeriden seç" Kind="secondary" Command="{Binding PickPhotoCommand}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- state: no camera on this device -->
+                <Border Grid.Row="1" IsVisible="{Binding IsCameraUnavailable}" Style="{StaticResource Card}" StrokeShape="RoundRectangle 28" Padding="26">
+                    <VerticalStackLayout Spacing="14" VerticalOptions="Center" HorizontalOptions="Fill">
+                        <Border WidthRequest="64" HeightRequest="64" StrokeShape="RoundRectangle 24" StrokeThickness="0" HorizontalOptions="Center"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}">
+                            <controls:IconView Kind="camera" Size="28" Muted="True" HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+                        <Label Text="Kamera kullanılamıyor" Style="{StaticResource Title}" HorizontalTextAlignment="Center" />
+                        <Label Text="Bu cihazda kamera açılamadı. Galerideki bir fotoğrafla da oynayabilirsin; puanlama aynı şekilde yapılır."
+                               Style="{StaticResource Muted}" HorizontalTextAlignment="Center" />
+                        <controls:AppButton Text="Galeriden seç" Kind="primary" Command="{Binding PickPhotoCommand}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- controls: gallery · shutter -->
+                <VerticalStackLayout Grid.Row="2" Spacing="10">
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource ErrorText}" IsVisible="{Binding HasError}" HorizontalTextAlignment="Center" />
+                    <Grid ColumnDefinitions="*,Auto,*" Padding="4,0">
+                        <VerticalStackLayout VerticalOptions="End" HorizontalOptions="Start" Spacing="5" Margin="12,0,0,0" SemanticProperties.Description="Galeriden fotoğraf seç">
+                            <Border WidthRequest="54" HeightRequest="54" StrokeShape="RoundRectangle 16" StrokeThickness="0" HorizontalOptions="Center"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}">
+                                <Grid>
+                                    <controls:IconView Kind="image" Size="24" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding IsPreparing, Converter={StaticResource Not}}" />
+                                    <ActivityIndicator IsRunning="{Binding IsPreparing}" IsVisible="{Binding IsPreparing}" WidthRequest="22" HeightRequest="22" HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                            <Label Text="Galeri" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                            <VerticalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding PickPhotoCommand}" />
+                            </VerticalStackLayout.GestureRecognizers>
+                        </VerticalStackLayout>
+
+                        <!-- shutter: a ring around a disc; the disc shrinks while pressed -->
+                        <VerticalStackLayout Grid.Column="1" Spacing="6" HorizontalOptions="Center">
+                            <Border x:Name="Shutter" WidthRequest="80" HeightRequest="80" StrokeShape="RoundRectangle 40" StrokeThickness="3" Padding="5" HorizontalOptions="Center"
+                                    Stroke="{AppThemeBinding Light={StaticResource InkLight}, Dark={StaticResource InkDark}}" BackgroundColor="Transparent"
+                                    SemanticProperties.Description="Fotoğraf çek" SemanticProperties.Hint="Kamerayı açar">
+                                <Border x:Name="ShutterDisc" StrokeShape="RoundRectangle 34" StrokeThickness="0"
+                                        BackgroundColor="{StaticResource Lime}" />
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnShutterTapped" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <Label Text="Fotoğraf çek" Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- ====================== STEP 3: mark the colour on the photo ====================== -->
+            <Grid IsVisible="{Binding HasPhoto}" RowDefinitions="Auto,*,Auto">
+
+                <Grid Padding="16,8,16,10" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                    <controls:IconButton Kind="x" Tone="soft" Size="44" Label="Vazgeç" Command="{Binding BackCommand}" />
+                    <!-- compact target reference -->
+                    <Border Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center" Padding="8,6,14,6" StrokeShape="RoundRectangle 24" StrokeThickness="0"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}"
+                            SemanticProperties.Description="{Binding Hunt.Hex, StringFormat='Hedef renk {0}'}">
+                        <HorizontalStackLayout Spacing="10">
+                            <controls:ColorSwatch Hex="{Binding Hunt.Hex}" Size="26" />
+                            <VerticalStackLayout VerticalOptions="Center" Spacing="0">
+                                <Label Text="Hedef" Style="{StaticResource Caption}" FontSize="10" LineHeight="1" />
+                                <Label Text="{Binding Hunt.Hex}" FontFamily="SansSemibold" FontSize="13" CharacterSpacing="1" LineHeight="1.1" />
+                            </VerticalStackLayout>
+                        </HorizontalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- photo on a neutral black matte, as large as the screen allows -->
+                <Grid x:Name="StageHost" Grid.Row="1" BackgroundColor="Black" SizeChanged="OnStageHostSizeChanged">
+                    <Grid x:Name="Stage" HorizontalOptions="Center" VerticalOptions="Center">
+                        <Image x:Name="Photo" Source="{Binding PhotoPath}" Aspect="Fill" SemanticProperties.Description="Çekilen fotoğraf" />
+                        <!-- minimal target mark: one light ring with a thin dark edge, plus a centre dot -->
+                        <Grid x:Name="Ring" HorizontalOptions="Start" VerticalOptions="Start" InputTransparent="True" SemanticProperties.Description="Rengin otomatik bulunduğu bölge">
+                            <Ellipse Stroke="#80000000" StrokeThickness="4" Fill="Transparent" />
+                            <Ellipse Stroke="White" StrokeThickness="2" Fill="Transparent" />
+                            <Ellipse WidthRequest="5" HeightRequest="5" Fill="White" HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Grid>
+                    </Grid>
+                    <Border HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,12" Padding="12,6" StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="#99000000" InputTransparent="True">
+                        <Label Text="En yakın renk otomatik bulundu" FontSize="12" TextColor="White" />
+                    </Border>
+                </Grid>
+
+                <!-- compare + decide -->
+                <Border Grid.Row="2" StrokeThickness="0" StrokeShape="RoundRectangle 28,28,0,0" Padding="20,18,20,12"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="10">
+                            <HorizontalStackLayout Spacing="12" SemanticProperties.Description="Hedef renk">
+                                <controls:ColorSwatch Hex="{Binding Hunt.Hex}" Size="52" RoundedSquare="True" />
+                                <VerticalStackLayout VerticalOptions="Center" Spacing="1">
+                                    <Label Text="Hedef" Style="{StaticResource Caption}" />
+                                    <Label Text="{Binding Hunt.Hex}" FontFamily="SansSemibold" FontSize="14" CharacterSpacing="1" />
+                                </VerticalStackLayout>
+                            </HorizontalStackLayout>
+
+                            <controls:IconView Grid.Column="1" Kind="arrow-right" Size="18" Muted="True" VerticalOptions="Center" />
+
+                            <HorizontalStackLayout Grid.Column="2" Spacing="12" HorizontalOptions="End" SemanticProperties.Description="Bulunan renk">
+                                <VerticalStackLayout VerticalOptions="Center" Spacing="1" HorizontalOptions="End">
+                                    <Label Text="Bulunan" Style="{StaticResource Caption}" HorizontalTextAlignment="End" />
+                                    <Label Text="{Binding PreviewHex, FallbackValue='–'}" FontFamily="SansSemibold" FontSize="14" CharacterSpacing="1" HorizontalTextAlignment="End" />
+                                </VerticalStackLayout>
+                                <Grid>
+                                    <controls:ColorSwatch Hex="{Binding PreviewHex}" Size="52" RoundedSquare="True" IsVisible="{Binding HasPreview}" />
+                                    <Border WidthRequest="52" HeightRequest="52" StrokeShape="RoundRectangle 16" StrokeThickness="1.5" StrokeDashArray="3,3" BackgroundColor="Transparent"
+                                            IsVisible="{Binding HasPreview, Converter={StaticResource Not}}"
+                                            Stroke="{AppThemeBinding Light={StaticResource OutlineLight}, Dark={StaticResource OutlineDark}}" />
+                                </Grid>
+                            </HorizontalStackLayout>
+                        </Grid>
+
+                        <!-- local estimate; the official score is always computed by the server -->
+                        <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding HasPreview}">
+                            <Label Text="Tahmini eşleşme" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                            <Label Grid.Column="1" controls:Count.To="{Binding PreviewScore}" FontFamily="SansBold" FontSize="24" VerticalOptions="Center" />
+                        </Grid>
+
+                        <!-- how to get closer -->
+                        <HorizontalStackLayout Spacing="8" IsVisible="{Binding HasHint}" SemanticProperties.Description="{Binding HintText, StringFormat='İpucu: {0}'}">
+                            <controls:IconView Kind="bulb" Size="17" StrokeWidth="2" VerticalOptions="Center"
+                                               Tint="{AppThemeBinding Light={StaticResource WarningLight}, Dark={StaticResource WarningDark}}" />
+                            <Label Text="{Binding HintText}" FontFamily="SansSemibold" FontSize="13" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+
+                        <!-- state: invalid colour sample -->
+                        <Border IsVisible="{Binding InvalidSample}" StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14,12"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource WarningSoftLight}, Dark={StaticResource WarningSoftDark}}">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <controls:IconView Kind="alert" Size="20" VerticalOptions="Start" />
+                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                    <Label Text="Bu bölgeden renk okunamadı" FontFamily="SansSemibold" FontSize="14" />
+                                    <Label Text="Bu fotoğrafta düz bir renk yüzeyi bulunamadı. Daha yakından ve iyi ışıkta tekrar çek." Style="{StaticResource Caption}" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+
+                        <Grid ColumnDefinitions="2*,3*" ColumnSpacing="10">
+                            <controls:AppButton Text="Yeniden çek" Kind="secondary" Command="{Binding RetakeAgainCommand}" IsEnabled="{Binding IsAnalyzing, Converter={StaticResource Not}}" />
+                            <controls:AppButton Grid.Column="1" Text="Eşleşmeyi kontrol et" Kind="primary" Command="{Binding AnalyzeCommand}" IsEnabled="{Binding CanCheck}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <!-- ====================== state: processing ====================== -->
+            <Grid IsVisible="{Binding IsAnalyzing}" BackgroundColor="#B3000000">
+                <Border HorizontalOptions="Center" VerticalOptions="Center" WidthRequest="260" Padding="24,26" StrokeShape="RoundRectangle 28" StrokeThickness="0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                    <VerticalStackLayout Spacing="14" HorizontalOptions="Center">
+                        <ActivityIndicator IsRunning="{Binding IsAnalyzing}" WidthRequest="34" HeightRequest="34" HorizontalOptions="Center" />
+                        <Label Text="Renk analiz ediliyor" Style="{StaticResource Headline}" HorizontalTextAlignment="Center" />
+                        <Label Text="Fotoğraf gönderiliyor, hedefe en yakın bölge bulunup karşılaştırılıyor." Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <!-- ====================== state: upload failed ====================== -->
+            <Grid IsVisible="{Binding UploadFailed}" BackgroundColor="#B3000000">
+                <Border HorizontalOptions="Fill" VerticalOptions="Center" Margin="24,0" Padding="24" StrokeShape="RoundRectangle 28" StrokeThickness="0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                    <VerticalStackLayout Spacing="12">
+                        <Border WidthRequest="56" HeightRequest="56" StrokeShape="RoundRectangle 16" StrokeThickness="0" HorizontalOptions="Center"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource WarningSoftLight}, Dark={StaticResource WarningSoftDark}}">
+                            <controls:IconView Kind="wifi-off" Size="26" HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+                        <Label Text="Gönderilemedi" Style="{StaticResource Title}" HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding FailureText}" Style="{StaticResource Muted}" HorizontalTextAlignment="Center" />
+                        <Label Text="Fotoğrafın ve seçtiğin bölge korundu." Style="{StaticResource Caption}" HorizontalTextAlignment="Center" />
+                        <controls:AppButton Text="Tekrar dene" Kind="primary" Command="{Binding AnalyzeCommand}" />
+                        <controls:AppButton Text="Vazgeç" Kind="ghost" Command="{Binding DismissFailureCommand}" HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <controls:BottomBar Grid.Row="1" ActiveTab="hunt" IsVisible="{Binding NoPhoto}" />
+
+        <!-- the live camera covers the whole screen (bar included) while it is open -->
+        <controls:LiveCamera x:Name="Camera" Grid.RowSpan="2" IsVisible="{Binding IsCameraOpen}" IsActive="{Binding IsCameraOpen}"
+                             TargetHex="{Binding Hunt.Hex, FallbackValue=#888888}" TargetName="{Binding Hunt.Name}"
+                             Captured="OnCameraCaptured" Closed="OnCameraClosed" GalleryRequested="OnCameraGallery" Failed="OnCameraFailed" />
+    </Grid>
+</ContentPage>

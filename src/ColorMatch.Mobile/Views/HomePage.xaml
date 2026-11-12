@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
+             xmlns:vm="clr-namespace:ColorMatch.Mobile.ViewModels"
+             x:Class="ColorMatch.Mobile.Views.HomePage">
+    <Grid RowDefinitions="*,Auto">
+        <Grid>
+            <RefreshView IsRefreshing="{Binding IsRefreshing, Mode=TwoWay}" Command="{Binding LoadCommand}">
+                <ScrollView>
+                    <VerticalStackLayout x:Name="HomeStack" Padding="0,8,0,112" Spacing="26" IsVisible="{Binding Loaded}" controls:Reveal.Stagger="True">
+
+                        <!-- top bar: brand on the left; notifications (friend requests) and profile on the right -->
+                        <Grid ColumnDefinitions="*,Auto,Auto" Padding="20,0,16,0" ColumnSpacing="6">
+                            <HorizontalStackLayout Spacing="10" VerticalOptions="Center" SemanticProperties.Description="ColorMatch">
+                                <Border WidthRequest="30" HeightRequest="30" StrokeShape="RoundRectangle 9" StrokeThickness="0" Padding="0">
+                                    <Image Source="logo_tile" Aspect="AspectFill" />
+                                </Border>
+                                <Label Text="ColorMatch" FontFamily="SansSemibold" FontSize="17" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+
+                            <Grid Grid.Column="1">
+                                <controls:IconButton Kind="bell" Tone="plain" Size="40" Label="Bildirimler" Command="{Binding OpenFriendsCommand}" />
+                                <Border IsVisible="{Binding HasPendingRequests}" HorizontalOptions="End" VerticalOptions="Start" Margin="0,3,1,0" InputTransparent="True"
+                                        MinimumWidthRequest="18" HeightRequest="18" Padding="5,0" StrokeShape="RoundRectangle 9" StrokeThickness="0"
+                                        BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}">
+                                    <Label Text="{Binding PendingText}" FontSize="10" FontFamily="SansSemibold" HorizontalOptions="Center" VerticalOptions="Center" LineHeight="1"
+                                           TextColor="{AppThemeBinding Light={StaticResource OnAccentLight}, Dark={StaticResource OnAccentDark}}" />
+                                </Border>
+                            </Grid>
+
+                            <controls:AvatarView Grid.Column="2" SourceUrl="{Binding AvatarUrl}" Name="{Binding AvatarName}" Size="36" VerticalOptions="Center">
+                                <controls:AvatarView.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OpenProfileCommand}" />
+                                </controls:AvatarView.GestureRecognizers>
+                            </controls:AvatarView>
+                        </Grid>
+
+                        <!-- short, human greeting + compact level -->
+                        <Grid ColumnDefinitions="*,Auto" Padding="20,0" ColumnSpacing="12">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="{Binding Greeting}" Style="{StaticResource LargeTitle}" LineBreakMode="TailTruncation" MaxLines="1" />
+                                <Label Text="{Binding DateText}" Style="{StaticResource Overline}" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!-- today's three hunts: one list, one progress line -->
+                        <VerticalStackLayout Margin="20,0" Spacing="12">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Spacing="1">
+                                    <Label Text="Günün avları" Style="{StaticResource Title}" />
+                                    <Label Text="{Binding ProgressCaption}" Style="{StaticResource Caption}" />
+                                </VerticalStackLayout>
+                                <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center" IsVisible="{Binding Countdown, Converter={StaticResource NotEmpty}}">
+                                    <controls:IconView Kind="clock" Size="14" Muted="True" VerticalOptions="Center" />
+                                    <Label Text="{Binding Countdown}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </Grid>
+
+                            <Border Style="{StaticResource Card}" Padding="0" StrokeShape="RoundRectangle 24">
+                                <VerticalStackLayout Spacing="0">
+                                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Hunts}">
+                                        <BindableLayout.ItemTemplate>
+                                            <DataTemplate>
+                                                <VerticalStackLayout Spacing="0">
+                                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14" Padding="14,12" MinimumHeightRequest="76" controls:Interact.TapFeedback="True"
+                                                          SemanticProperties.Description="{Binding Name}" SemanticProperties.Hint="Bu avı başlatmak için dokun">
+                                                        <Border WidthRequest="52" HeightRequest="52" StrokeShape="RoundRectangle 16" StrokeThickness="0" VerticalOptions="Center"
+                                                                BackgroundColor="{Binding Hex, Converter={StaticResource HexToColor}}" />
+                                                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="3">
+                                                            <Label Text="{Binding Name}" FontFamily="SansBold" FontSize="16" LineBreakMode="TailTruncation" />
+                                                            <HorizontalStackLayout Spacing="8">
+                                                                <controls:DifficultyMeter Level="{Binding Level}" />
+                                                                <Label Text="{Binding SubText}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                                                            </HorizontalStackLayout>
+                                                            <Label Text="{Binding StatusText}" Style="{StaticResource Caption}" LineBreakMode="TailTruncation" />
+                                                        </VerticalStackLayout>
+                                                        <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" HorizontalOptions="End" Spacing="6">
+                                                            <controls:CompletionMark IsCompleted="{Binding IsCompleted}" HorizontalOptions="End" />
+                                                            <Label Text="{Binding XpText}" FontFamily="SansSemibold" FontSize="13" HorizontalTextAlignment="End" />
+                                                        </VerticalStackLayout>
+                                                        <Grid.GestureRecognizers>
+                                                            <TapGestureRecognizer Command="{Binding OpenHuntCommand, Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}}" CommandParameter="{Binding .}" />
+                                                        </Grid.GestureRecognizers>
+                                                    </Grid>
+                                                    <BoxView Style="{StaticResource Hairline}" />
+                                                </VerticalStackLayout>
+                                            </DataTemplate>
+                                        </BindableLayout.ItemTemplate>
+                                    </VerticalStackLayout>
+
+                                    <!-- completion strip: three segments + the bonus -->
+                                    <VerticalStackLayout Spacing="8" Padding="16,12,16,14">
+                                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="6" HeightRequest="6">
+                                            <Border StrokeThickness="0" StrokeShape="RoundRectangle 3" BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}">
+                                                <Border.Triggers><DataTrigger TargetType="Border" Binding="{Binding Seg0Done}" Value="True"><Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SuccessLight}, Dark={StaticResource SuccessDark}}" /></DataTrigger></Border.Triggers>
+                                            </Border>
+                                            <Border Grid.Column="1" StrokeThickness="0" StrokeShape="RoundRectangle 3" BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}">
+                                                <Border.Triggers><DataTrigger TargetType="Border" Binding="{Binding Seg1Done}" Value="True"><Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SuccessLight}, Dark={StaticResource SuccessDark}}" /></DataTrigger></Border.Triggers>
+                                            </Border>
+                                            <Border Grid.Column="2" StrokeThickness="0" StrokeShape="RoundRectangle 3" BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}">
+                                                <Border.Triggers><DataTrigger TargetType="Border" Binding="{Binding Seg2Done}" Value="True"><Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SuccessLight}, Dark={StaticResource SuccessDark}}" /></DataTrigger></Border.Triggers>
+                                            </Border>
+                                        </Grid>
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <Label Text="{Binding BonusText}" Style="{StaticResource Caption}" />
+                                            <Label Grid.Column="1" Text="{Binding XpTodayText}" FontFamily="SansSemibold" FontSize="12" />
+                                        </Grid>
+                                    </VerticalStackLayout>
+                                </VerticalStackLayout>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- level and streak -->
+                        <Border Style="{StaticResource Card}" Margin="20,0" Padding="16" StrokeShape="RoundRectangle 24">
+                            <VerticalStackLayout Spacing="14">
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="20">
+                                <controls:XpProgress Level="{Binding LevelNumber}" Caption="{Binding LevelText}" XpText="{Binding XpText}" Progress="{Binding XpProgress}" />
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center" HorizontalOptions="Center" SemanticProperties.Description="{Binding StreakText, StringFormat='Seri: {0}'}">
+                                    <controls:IconView Kind="zap" Size="22" Filled="True" StrokeWidth="1.5" HorizontalOptions="Center"
+                                                       Tint="{AppThemeBinding Light={StaticResource WarningLight}, Dark={StaticResource WarningDark}}" />
+                                    <Label Text="{Binding StreakText}" FontFamily="SansSemibold" FontSize="13" HorizontalTextAlignment="Center" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <!-- the last seven days: empty ring, mint = some hunts, lime + check = all three -->
+                            <VerticalStackLayout Spacing="8" IsVisible="{Binding HasWeek}">
+                                <BoxView Style="{StaticResource Hairline}" />
+                                <Grid ColumnDefinitions="*,*,*,*,*,*,*" x:Name="WeekRow" BindableLayout.ItemsSource="{Binding Week}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate>
+                                            <VerticalStackLayout Grid.Column="{Binding Index}" Spacing="4" HorizontalOptions="Center" SemanticProperties.Description="{Binding Description}">
+                                                <Grid WidthRequest="32" HeightRequest="32" HorizontalOptions="Center">
+                                                    <Border StrokeShape="RoundRectangle 16" BackgroundColor="{Binding Fill}" StrokeThickness="{Binding Ring}"
+                                                            Stroke="{AppThemeBinding Light={StaticResource OutlineLight}, Dark={StaticResource OutlineDark}}" />
+                                                    <controls:IconView Kind="check" Size="16" StrokeWidth="2.8" Tint="{StaticResource Night}" IsVisible="{Binding Full}" HorizontalOptions="Center" VerticalOptions="Center" />
+                                                    <Label Text="{Binding CountText}" FontFamily="SansBold" FontSize="13" TextColor="{StaticResource Night}" IsVisible="{Binding Partial}" HorizontalOptions="Center" VerticalOptions="Center" LineHeight="1" />
+                                                </Grid>
+                                                <Label Text="{Binding Name}" FontFamily="{Binding NameFont}" FontSize="11" HorizontalTextAlignment="Center" Style="{StaticResource Caption}" />
+                                            </VerticalStackLayout>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </Grid>
+                                <Label Text="{Binding WeekText}" Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Color Atlas entry -->
+                        <Border Style="{StaticResource Card}" Margin="20,0" Padding="16,14" StrokeShape="RoundRectangle 24" controls:Interact.TapFeedback="True"
+                                SemanticProperties.Description="Renk Atlası" SemanticProperties.Hint="Koleksiyonu açmak için dokun">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                <Grid WidthRequest="48" HeightRequest="48" RowDefinitions="*,*" ColumnDefinitions="*,*" RowSpacing="3" ColumnSpacing="3" VerticalOptions="Center">
+                                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 8" BackgroundColor="#3FA34D" />
+                                    <Border Grid.Column="1" StrokeThickness="0" StrokeShape="RoundRectangle 8" BackgroundColor="#1A73D1" />
+                                    <Border Grid.Row="1" StrokeThickness="0" StrokeShape="RoundRectangle 8" BackgroundColor="#F26BA3" />
+                                    <Border Grid.Row="1" Grid.Column="1" StrokeThickness="0" StrokeShape="RoundRectangle 8" BackgroundColor="#E8B84A" />
+                                </Grid>
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="5">
+                                    <Label Text="{Binding AtlasText}" FontFamily="SansBold" FontSize="16" />
+                                    <ProgressBar controls:Smooth.Progress="{Binding AtlasProgress}" HeightRequest="6" />
+                                    <Label Text="{Binding AtlasSub}" Style="{StaticResource Caption}" LineBreakMode="TailTruncation" />
+                                </VerticalStackLayout>
+                                <controls:IconView Grid.Column="2" Kind="chevron-right" Size="18" Muted="True" VerticalOptions="Center" />
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OpenAtlasCommand}" />
+                                </Grid.GestureRecognizers>
+                            </Grid>
+                        </Border>
+
+                        <!-- Color Bingo entry -->
+                        <Border Style="{StaticResource Card}" Margin="20,0" Padding="16,14" StrokeShape="RoundRectangle 24" controls:Interact.TapFeedback="True"
+                                SemanticProperties.Description="Renk Bingosu" SemanticProperties.Hint="Tahtayı açmak için dokun">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                <Grid WidthRequest="48" HeightRequest="48" RowDefinitions="*,*,*" ColumnDefinitions="*,*,*" RowSpacing="2" ColumnSpacing="2" VerticalOptions="Center">
+                                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 5" BackgroundColor="#D6336C" />
+                                    <Border Grid.Column="1" StrokeThickness="0" StrokeShape="RoundRectangle 5" BackgroundColor="#1C9A6C" />
+                                    <Border Grid.Column="2" StrokeThickness="0" StrokeShape="RoundRectangle 5" BackgroundColor="#E8B84A" />
+                                    <Border Grid.Row="1" StrokeThickness="0" StrokeShape="RoundRectangle 5" BackgroundColor="#1A73D1" />
+                                    <Border Grid.Row="1" Grid.Column="1" StrokeThickness="0" StrokeShape="RoundRectangle 5" BackgroundColor="#8F2BFF" />
+                                    <Border Grid.Row="1" Grid.Column="2" StrokeThickness="0" StrokeShape="RoundRectangle 5" BackgroundColor="#0E92A3" />
+                                    <Border Grid.Row="2" StrokeThickness="0" StrokeShape="RoundRectangle 5" BackgroundColor="#F26BA3" />
+                                    <Border Grid.Row="2" Grid.Column="1" StrokeThickness="0" StrokeShape="RoundRectangle 5" BackgroundColor="#3FA34D" />
+                                    <Border Grid.Row="2" Grid.Column="2" StrokeThickness="0" StrokeShape="RoundRectangle 5" BackgroundColor="#7FB0FF" />
+                                </Grid>
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="5">
+                                    <Label Text="{Binding BingoText}" FontFamily="SansBold" FontSize="16" />
+                                    <ProgressBar controls:Smooth.Progress="{Binding BingoProgress}" HeightRequest="6" />
+                                    <Label Text="{Binding BingoSub}" Style="{StaticResource Caption}" LineBreakMode="TailTruncation" />
+                                </VerticalStackLayout>
+                                <controls:IconView Grid.Column="2" Kind="chevron-right" Size="18" Muted="True" VerticalOptions="Center" />
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OpenBingoCommand}" />
+                                </Grid.GestureRecognizers>
+                            </Grid>
+                        </Border>
+
+                        <!-- Friend duels entry -->
+                        <Border Style="{StaticResource Card}" Margin="20,0" Padding="16,14" StrokeShape="RoundRectangle 24" controls:Interact.TapFeedback="True"
+                                SemanticProperties.Description="Arkadaş düelloları" SemanticProperties.Hint="Düelloları açmak için dokun">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                <Border WidthRequest="48" HeightRequest="48" StrokeThickness="0" StrokeShape="RoundRectangle 16" BackgroundColor="{StaticResource Pink}" VerticalOptions="Center">
+                                    <controls:IconView Kind="users" Size="24" Tint="White" HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="3">
+                                    <Label Text="Arkadaş düellosu" FontFamily="SansBold" FontSize="16" />
+                                    <Label Text="{Binding DuelSub}" Style="{StaticResource Caption}" LineBreakMode="TailTruncation" />
+                                </VerticalStackLayout>
+                                <controls:IconView Grid.Column="2" Kind="chevron-right" Size="18" Muted="True" VerticalOptions="Center" />
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OpenDuelsCommand}" />
+                                </Grid.GestureRecognizers>
+                            </Grid>
+                        </Border>
+
+                        <!-- community photos: swipeable, picture-first -->
+                        <VerticalStackLayout Spacing="12" IsVisible="{Binding HasRecent}">
+                            <Grid ColumnDefinitions="*,Auto" Padding="20,0">
+                                <Label Text="Toplulukta" Style="{StaticResource Title}" VerticalOptions="Center" />
+                                <controls:AppButton Grid.Column="1" Text="Tümü" Kind="ghost" Command="{Binding OpenFeedCommand}" />
+                            </Grid>
+                            <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                                <HorizontalStackLayout Spacing="12" Padding="20,0" BindableLayout.ItemsSource="{Binding Recent}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate>
+                                            <controls:PhotoCard WidthRequest="164" HeightRequest="224" Radius="22" ImageUrl="{Binding ImageUrl}" Hex="{Binding ColorHex}" IsCollage="{Binding IsCollage}"
+                                                                SemanticProperties.Description="Topluluk fotoğrafı">
+                                                <controls:PhotoCard.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding OpenPostCommand, Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}}" CommandParameter="{Binding .}" />
+                                                </controls:PhotoCard.GestureRecognizers>
+                                            </controls:PhotoCard>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </HorizontalStackLayout>
+                            </ScrollView>
+                        </VerticalStackLayout>
+
+                        <!-- colour collages for inspiration -->
+                        <VerticalStackLayout Spacing="12" IsVisible="{Binding HasCollages}">
+                            <Grid ColumnDefinitions="*,Auto" Padding="20,0">
+                                <VerticalStackLayout Spacing="1">
+                                    <Label Text="Kolaj ilhamı" Style="{StaticResource Title}" />
+                                    <Label Text="Renklerle kurulmuş kompozisyonlar" Style="{StaticResource Caption}" />
+                                </VerticalStackLayout>
+                                <controls:AppButton Grid.Column="1" Text="Oluştur" Kind="ghost" Command="{Binding OpenCreateCommand}" VerticalOptions="Center" />
+                            </Grid>
+                            <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                                <HorizontalStackLayout Spacing="12" Padding="20,0" BindableLayout.ItemsSource="{Binding Collages}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate>
+                                            <controls:PhotoCard WidthRequest="150" HeightRequest="266" Radius="22" ImageUrl="{Binding ImageUrl}" Hex="{Binding ColorHex}" IsCollage="{Binding IsCollage}"
+                                                                SemanticProperties.Description="Kolaj">
+                                                <controls:PhotoCard.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding OpenPostCommand, Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}}" CommandParameter="{Binding .}" />
+                                                </controls:PhotoCard.GestureRecognizers>
+                                            </controls:PhotoCard>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </HorizontalStackLayout>
+                            </ScrollView>
+                        </VerticalStackLayout>
+
+                        <!-- empty state: nothing shared yet -->
+                        <Border Style="{StaticResource Card}" Margin="20,0" Padding="20" StrokeShape="RoundRectangle 24" IsVisible="{Binding NoCommunity}">
+                            <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                                <Border WidthRequest="56" HeightRequest="56" StrokeShape="RoundRectangle 16" StrokeThickness="0" HorizontalOptions="Center"
+                                        BackgroundColor="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}">
+                                    <controls:IconView Kind="image" Size="26" Accent="True" HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <Label Text="Topluluk henüz sessiz" Style="{StaticResource Headline}" HorizontalTextAlignment="Center" />
+                                <Label Text="Bugünün rengini bul ya da bir kolaj yapıp ilk paylaşımı sen yap." Style="{StaticResource Muted}" HorizontalTextAlignment="Center" />
+                                <controls:AppButton Text="Kolaj oluştur" Kind="secondary" Command="{Binding OpenCreateCommand}" HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- today's ranking -->
+                        <VerticalStackLayout Spacing="6" IsVisible="{Binding HasLeaders}">
+                            <Grid ColumnDefinitions="*,Auto" Padding="20,0,20,6">
+                                <Label Text="Bugünün sıralaması" Style="{StaticResource Title}" />
+                                <Label Grid.Column="1" Text="{Binding RankText}" Style="{StaticResource Caption}" VerticalOptions="Center" HorizontalTextAlignment="End" />
+                            </Grid>
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Leaders}" Spacing="2" Padding="12,0">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="8,8" BackgroundColor="Transparent" MinimumHeightRequest="56">
+                                            <Border.Triggers>
+                                                <DataTrigger TargetType="Border" Binding="{Binding IsMe}" Value="True">
+                                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}" />
+                                                </DataTrigger>
+                                            </Border.Triggers>
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding OpenUserCommand, Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}}" CommandParameter="{Binding .}" />
+                                            </Border.GestureRecognizers>
+                                            <Grid ColumnDefinitions="32,Auto,*,Auto" ColumnSpacing="12">
+                                                <Label Text="{Binding RankText}" FontFamily="SansSemibold" FontSize="17" VerticalOptions="Center" HorizontalTextAlignment="Center"
+                                                       Style="{StaticResource Muted}" />
+                                                <controls:AvatarView Grid.Column="1" SourceUrl="{Binding AvatarUrl}" Name="{Binding UserName}" Size="38" />
+                                                <Label Grid.Column="2" Text="{Binding UserName}" VerticalOptions="Center" LineBreakMode="TailTruncation" FontFamily="SansSemibold" FontSize="15" />
+                                                <Label Grid.Column="3" Text="{Binding Score}" FontFamily="SansSemibold" FontSize="17" VerticalOptions="Center" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+
+                        <!-- previous colours -->
+                        <VerticalStackLayout Spacing="14" IsVisible="{Binding HasPast}">
+                            <Label Text="Geçmiş renkler" Style="{StaticResource Title}" Padding="20,0" />
+                            <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                                <HorizontalStackLayout Spacing="14" Padding="20,0" BindableLayout.ItemsSource="{Binding Past}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate>
+                                            <VerticalStackLayout Spacing="8" WidthRequest="76" SemanticProperties.Description="{Binding Name}">
+                                                <controls:ColorSwatch Hex="{Binding Hex}" Size="70" RoundedSquare="True" HorizontalOptions="Start" />
+                                                <VerticalStackLayout Spacing="0">
+                                                    <Label Text="{Binding Name}" FontFamily="SansSemibold" FontSize="12" LineBreakMode="TailTruncation" LineHeight="1.2" />
+                                                    <Label Text="{Binding DateText}" Style="{StaticResource Caption}" FontSize="11" />
+                                                </VerticalStackLayout>
+                                                <Label Text="{Binding ScoreText}" FontFamily="SansSemibold" FontSize="13" Style="{StaticResource Muted}" />
+                                            </VerticalStackLayout>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </HorizontalStackLayout>
+                            </ScrollView>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </RefreshView>
+
+            <!-- loading skeleton (same silhouette as the loaded page) -->
+            <controls:PulseHost IsVisible="{Binding ShowSkeleton}" InputTransparent="True">
+            <VerticalStackLayout Padding="20,16" Spacing="22" InputTransparent="True">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                    <controls:SkeletonView WidthRequest="30" HeightRequest="30" Radius="9" />
+                    <controls:SkeletonView Grid.Column="1" WidthRequest="110" HeightRequest="14" Radius="7" HorizontalOptions="Start" />
+                    <controls:SkeletonView Grid.Column="2" WidthRequest="36" HeightRequest="36" Radius="18" />
+                </Grid>
+                <controls:SkeletonView WidthRequest="230" HeightRequest="28" Radius="8" HorizontalOptions="Start" />
+                <controls:SkeletonView WidthRequest="150" HeightRequest="22" Radius="8" HorizontalOptions="Start" />
+                <controls:SkeletonView HeightRequest="268" Radius="24" />
+                <controls:SkeletonView HeightRequest="92" Radius="24" />
+            </VerticalStackLayout>
+            </controls:PulseHost>
+
+            <controls:StateView x:Name="State" ErrorMessage="{Binding ErrorMessage}" RetryCommand="{Binding LoadCommand}" />
+        </Grid>
+
+        <controls:BottomBar Grid.RowSpan="2" VerticalOptions="End" ActiveTab="home" />
+    </Grid>
+</ContentPage>

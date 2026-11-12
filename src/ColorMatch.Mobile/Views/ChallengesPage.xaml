@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
+             xmlns:vm="clr-namespace:ColorMatch.Mobile.ViewModels"
+             x:Class="ColorMatch.Mobile.Views.ChallengesPage">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView>
+            <VerticalStackLayout Padding="20,12,20,112" Spacing="20">
+
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Görevler" Style="{StaticResource LargeTitle}" />
+                    <Label Text="Şimdi oynayabileceğin her şey burada" Style="{StaticResource Caption}" />
+                </VerticalStackLayout>
+
+                <!-- loading -->
+                <VerticalStackLayout Spacing="12" IsVisible="{Binding ShowSkeleton}">
+                    <controls:SkeletonView HeightRequest="220" Radius="22" />
+                    <controls:SkeletonView HeightRequest="84" Radius="22" />
+                    <controls:SkeletonView HeightRequest="150" Radius="22" />
+                </VerticalStackLayout>
+
+                <!-- everything failed -->
+                <VerticalStackLayout Spacing="10" IsVisible="{Binding HasError}">
+                    <controls:IconView Kind="wifi-off" Size="28" Muted="True" HorizontalOptions="Start" />
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource ErrorText}" />
+                    <controls:AppButton Text="Tekrar dene" Kind="secondary" Command="{Binding LoadCommand}" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="20" IsVisible="{Binding Loaded}" controls:Reveal.Stagger="True">
+
+                    <!-- daily hunts -->
+                    <VerticalStackLayout Spacing="10">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Günün avları" Style="{StaticResource Headline}" />
+                            <Label Grid.Column="1" Text="{Binding HuntsText}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                        </Grid>
+                        <ProgressBar controls:Smooth.Progress="{Binding HuntsProgress}" HeightRequest="6" />
+                        <VerticalStackLayout IsVisible="{Binding HasHuntsError}" Spacing="8">
+                            <Label Text="{Binding HuntsError}" Style="{StaticResource ErrorText}" />
+                            <controls:AppButton Text="Tekrar dene" Kind="secondary" Compact="True" Command="{Binding LoadCommand}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding Hunts}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 20" Padding="12" controls:Interact.TapFeedback="True"
+                                            SemanticProperties.Description="{Binding StatusText}">
+                                        <Grid ColumnDefinitions="52,*,Auto" ColumnSpacing="12">
+                                            <Border WidthRequest="52" HeightRequest="52" StrokeThickness="0" StrokeShape="RoundRectangle 15"
+                                                    BackgroundColor="{Binding Hex, Converter={StaticResource HexToColor}}" />
+                                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
+                                                <Label Text="{Binding Name}" FontFamily="SansBold" FontSize="15" />
+                                                <Label Text="{Binding SubText}" Style="{StaticResource Caption}" />
+                                                <Label Text="{Binding StatusText}" Style="{StaticResource Caption}" />
+                                            </VerticalStackLayout>
+                                            <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="4" HorizontalOptions="End">
+                                                <controls:IconView Kind="check" Size="20" StrokeWidth="2.6" Tint="#0FA47F" HorizontalOptions="End" IsVisible="{Binding IsCompleted}" />
+                                                <Label Text="{Binding XpText}" FontFamily="SansSemibold" FontSize="13" HorizontalOptions="End" />
+                                            </VerticalStackLayout>
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding OpenHuntCommand, Source={RelativeSource AncestorType={x:Type vm:ChallengesViewModel}}}" CommandParameter="{Binding .}" />
+                                            </Grid.GestureRecognizers>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+
+                    <!-- bingo -->
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Renk Bingosu" Style="{StaticResource Headline}" />
+                        <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 22" Padding="16,14" controls:Interact.TapFeedback="True" IsVisible="{Binding HasBingo}"
+                                SemanticProperties.Description="Bingo tahtasını aç">
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                <VerticalStackLayout VerticalOptions="Center" Spacing="6">
+                                    <Label Text="{Binding BingoText}" FontFamily="SansBold" FontSize="15" />
+                                    <ProgressBar controls:Smooth.Progress="{Binding BingoProgress}" HeightRequest="6" />
+                                    <Label Text="{Binding BingoSub}" Style="{StaticResource Caption}" />
+                                </VerticalStackLayout>
+                                <controls:IconView Grid.Column="1" Kind="chevron-right" Size="18" Muted="True" VerticalOptions="Center" />
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OpenBingoCommand}" />
+                                </Grid.GestureRecognizers>
+                            </Grid>
+                        </Border>
+                        <VerticalStackLayout IsVisible="{Binding HasBingoError}" Spacing="8">
+                            <Label Text="{Binding BingoError}" Style="{StaticResource ErrorText}" />
+                            <controls:AppButton Text="Tekrar dene" Kind="secondary" Compact="True" Command="{Binding LoadCommand}" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+
+                    <!-- friend duels -->
+                    <VerticalStackLayout Spacing="10">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Arkadaş düelloları" Style="{StaticResource Headline}" />
+                            <Label Grid.Column="1" Text="{Binding DuelsText}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                        </Grid>
+                        <VerticalStackLayout IsVisible="{Binding HasDuelsError}" Spacing="8">
+                            <Label Text="{Binding DuelsError}" Style="{StaticResource ErrorText}" />
+                            <controls:AppButton Text="Tekrar dene" Kind="secondary" Compact="True" Command="{Binding LoadCommand}" />
+                        </VerticalStackLayout>
+                        <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 22" Padding="16" IsVisible="{Binding NoDuels}">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Açık düello yok" FontFamily="SansBold" FontSize="15" />
+                                <Label Text="Bir arkadaşını seç, aynı rengi ikiniz de bulmaya çalışın." Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                        </Border>
+                        <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding Duels}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 20" Padding="12" controls:Interact.TapFeedback="True"
+                                            SemanticProperties.Description="{Binding Description}">
+                                        <Grid ColumnDefinitions="52,*,Auto" ColumnSpacing="12">
+                                            <Border WidthRequest="52" HeightRequest="52" StrokeThickness="0" StrokeShape="RoundRectangle 15"
+                                                    BackgroundColor="{Binding ColorHex, Converter={StaticResource HexToColor}}">
+                                                <Label Text="?" HorizontalOptions="Center" VerticalOptions="Center" FontFamily="SansBold" FontSize="18" TextColor="White" IsVisible="{Binding ColorHidden}" />
+                                            </Border>
+                                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
+                                                <Label Text="{Binding Title}" FontFamily="SansBold" FontSize="15" />
+                                                <Label Text="{Binding StatusText}" Style="{StaticResource Caption}" />
+                                                <Label Text="{Binding TimeText}" Style="{StaticResource Caption}" IsVisible="{Binding HasTimeText}" />
+                                            </VerticalStackLayout>
+                                            <controls:IconView Grid.Column="2" Kind="chevron-right" Size="18" Muted="True" VerticalOptions="Center" />
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding PlayDuelCommand, Source={RelativeSource AncestorType={x:Type vm:ChallengesViewModel}}}" CommandParameter="{Binding .}" />
+                                            </Grid.GestureRecognizers>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                        <controls:AppButton Text="Tüm düellolar" Kind="secondary" Command="{Binding OpenDuelsCommand}" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+        <controls:BottomBar Grid.RowSpan="2" VerticalOptions="End" ActiveTab="challenges" />
+    </Grid>
+</ContentPage>

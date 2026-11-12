@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
+             x:Class="ColorMatch.Mobile.Controls.PostColorStrip">
+    <!-- BindingContext = PostItemViewModel. The colour of the post as one compact line; tap to reveal its tonal palette. -->
+    <VerticalStackLayout Spacing="10">
+        <HorizontalStackLayout Spacing="8" VerticalOptions="Center" MinimumHeightRequest="40"
+                               SemanticProperties.Description="Gönderinin rengi" SemanticProperties.Hint="Renk paletini aç veya kapat">
+            <Border WidthRequest="16" HeightRequest="16" StrokeShape="RoundRectangle 8" StrokeThickness="0" VerticalOptions="Center"
+                    BackgroundColor="{Binding ColorHex, Converter={StaticResource HexToColor}}" />
+            <Label Text="{Binding ColorHex}" FontFamily="SansSemibold" FontSize="12" CharacterSpacing="1" VerticalOptions="Center" />
+            <Label Text="{Binding ColorFamily, StringFormat='· {0}'}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+            <controls:IconView x:Name="Chevron" Kind="chevron-right" Size="14" Muted="True" VerticalOptions="Center" />
+            <HorizontalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnToggle" />
+            </HorizontalStackLayout.GestureRecognizers>
+        </HorizontalStackLayout>
+
+        <HorizontalStackLayout x:Name="Palette" Spacing="6" IsVisible="False" Opacity="0" BindableLayout.ItemsSource="{Binding Tones}"
+                               SemanticProperties.Description="Rengin açık ve koyu tonları">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate>
+                    <Border WidthRequest="44" HeightRequest="30" StrokeShape="RoundRectangle 9" StrokeThickness="0"
+                            BackgroundColor="{Binding Hex, Converter={StaticResource HexToColor}}" />
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </HorizontalStackLayout>
+    </VerticalStackLayout>
+</ContentView>

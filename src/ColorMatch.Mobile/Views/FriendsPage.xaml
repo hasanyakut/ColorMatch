@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
+             xmlns:vm="clr-namespace:ColorMatch.Mobile.ViewModels"
+             x:Class="ColorMatch.Mobile.Views.FriendsPage">
+    <ContentPage.Resources>
+        <!-- one row for every list: avatar, name, level and the actions that fit the relationship -->
+        <DataTemplate x:Key="PersonTemplate">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14" MinimumHeightRequest="64" Padding="0,8">
+                <controls:AvatarView SourceUrl="{Binding AvatarUrl}" Name="{Binding UserName}" Size="48" />
+                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="0">
+                    <Label Text="{Binding UserName}" FontFamily="SansSemibold" LineBreakMode="TailTruncation" />
+                    <Label Text="{Binding SubText}" Style="{StaticResource Caption}" />
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding OpenProfileCommand, Source={RelativeSource AncestorType={x:Type vm:FriendsViewModel}}}" CommandParameter="{Binding .}" />
+                    </VerticalStackLayout.GestureRecognizers>
+                </VerticalStackLayout>
+                <HorizontalStackLayout Grid.Column="2" Spacing="4" VerticalOptions="Center">
+                    <controls:AppButton Text="{Binding PrimaryText}" Kind="{Binding PrimaryKind}" Compact="True" IsVisible="{Binding HasPrimary}" IsEnabled="{Binding PrimaryEnabled}"
+                                        Command="{Binding PrimaryCommand, Source={RelativeSource AncestorType={x:Type vm:FriendsViewModel}}}" CommandParameter="{Binding .}" />
+                    <controls:AppButton Text="{Binding SecondaryText}" Kind="ghost" IsVisible="{Binding HasSecondary}"
+                                        Command="{Binding SecondaryCommand, Source={RelativeSource AncestorType={x:Type vm:FriendsViewModel}}}" CommandParameter="{Binding .}" />
+                </HorizontalStackLayout>
+            </Grid>
+        </DataTemplate>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
+        <Grid Padding="16,8,20,0" ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <controls:IconButton Kind="arrow-left" Tone="soft" Label="Geri" Command="{Binding BackCommand}" />
+            <Label Grid.Column="1" Text="Arkadaşlar" Style="{StaticResource LargeTitle}" VerticalOptions="Center" />
+        </Grid>
+
+        <!-- tabs -->
+        <HorizontalStackLayout Grid.Row="1" Spacing="24" Padding="20,16,20,4">
+            <VerticalStackLayout Spacing="6">
+                <Label Text="Arkadaşlarım">
+                    <Label.Style>
+                        <Style TargetType="Label" BasedOn="{StaticResource Headline}">
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource InkMutedLight}, Dark={StaticResource InkMutedDark}}" />
+                            <Style.Triggers><DataTrigger TargetType="Label" Binding="{Binding IsFriendsTab}" Value="True"><Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource InkLight}, Dark={StaticResource InkDark}}" /></DataTrigger></Style.Triggers>
+                        </Style>
+                    </Label.Style>
+                </Label>
+                <Border HeightRequest="3" StrokeThickness="0" StrokeShape="RoundRectangle 2" IsVisible="{Binding IsFriendsTab}" BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}" />
+                <VerticalStackLayout.GestureRecognizers><TapGestureRecognizer Command="{Binding SetTabCommand}" CommandParameter="friends" /></VerticalStackLayout.GestureRecognizers>
+            </VerticalStackLayout>
+            <VerticalStackLayout Spacing="6">
+                <Label Text="{Binding RequestsLabel}">
+                    <Label.Style>
+                        <Style TargetType="Label" BasedOn="{StaticResource Headline}">
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource InkMutedLight}, Dark={StaticResource InkMutedDark}}" />
+                            <Style.Triggers><DataTrigger TargetType="Label" Binding="{Binding IsRequestsTab}" Value="True"><Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource InkLight}, Dark={StaticResource InkDark}}" /></DataTrigger></Style.Triggers>
+                        </Style>
+                    </Label.Style>
+                </Label>
+                <Border HeightRequest="3" StrokeThickness="0" StrokeShape="RoundRectangle 2" IsVisible="{Binding IsRequestsTab}" BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}" />
+                <VerticalStackLayout.GestureRecognizers><TapGestureRecognizer Command="{Binding SetTabCommand}" CommandParameter="requests" /></VerticalStackLayout.GestureRecognizers>
+            </VerticalStackLayout>
+            <VerticalStackLayout Spacing="6">
+                <Label Text="Kişi ara">
+                    <Label.Style>
+                        <Style TargetType="Label" BasedOn="{StaticResource Headline}">
+                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource InkMutedLight}, Dark={StaticResource InkMutedDark}}" />
+                            <Style.Triggers><DataTrigger TargetType="Label" Binding="{Binding IsSearchTab}" Value="True"><Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource InkLight}, Dark={StaticResource InkDark}}" /></DataTrigger></Style.Triggers>
+                        </Style>
+                    </Label.Style>
+                </Label>
+                <Border HeightRequest="3" StrokeThickness="0" StrokeShape="RoundRectangle 2" IsVisible="{Binding IsSearchTab}" BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}" />
+                <VerticalStackLayout.GestureRecognizers><TapGestureRecognizer Command="{Binding SetTabCommand}" CommandParameter="search" /></VerticalStackLayout.GestureRecognizers>
+            </VerticalStackLayout>
+        </HorizontalStackLayout>
+        <BoxView Grid.Row="1" Style="{StaticResource Hairline}" VerticalOptions="End" />
+
+        <Label Grid.Row="2" Text="{Binding InfoMessage}" Padding="20,10,20,0" Style="{StaticResource SuccessText}" FontSize="13" IsVisible="{Binding InfoMessage, Converter={StaticResource NotEmpty}}" />
+
+        <ScrollView Grid.Row="3">
+            <VerticalStackLayout Padding="20,12,20,32" Spacing="6">
+
+                <!-- FRIENDS -->
+                <VerticalStackLayout IsVisible="{Binding IsFriendsTab}" Spacing="2">
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Friends}" BindableLayout.ItemTemplate="{StaticResource PersonTemplate}" />
+                    <VerticalStackLayout IsVisible="{Binding NoFriends}" Spacing="12" Padding="0,56,0,0" HorizontalOptions="Center">
+                        <Border WidthRequest="72" HeightRequest="72" StrokeShape="RoundRectangle 36" StrokeThickness="0" HorizontalOptions="Center"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}">
+                            <controls:IconView Kind="users" Size="30" Accent="True" />
+                        </Border>
+                        <Label Text="Henüz arkadaşın yok" Style="{StaticResource Headline}" HorizontalTextAlignment="Center" />
+                        <Label Text="Kullanıcı adıyla ara, arkadaşlarının renk avlarını akışında gör." Style="{StaticResource Muted}" FontSize="14" HorizontalTextAlignment="Center" />
+                        <controls:AppButton Text="Arkadaş ara" Kind="primary" Compact="True" HorizontalOptions="Center" Command="{Binding SetTabCommand}" CommandParameter="search" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- REQUESTS -->
+                <VerticalStackLayout IsVisible="{Binding IsRequestsTab}" Spacing="2">
+                    <Label Text="Gelen istekler" Style="{StaticResource Overline}" Margin="0,4,0,4" IsVisible="{Binding IncomingCount}" />
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Incoming}" BindableLayout.ItemTemplate="{StaticResource PersonTemplate}" />
+                    <Label Text="Gönderdiğin istekler" Style="{StaticResource Overline}" Margin="0,18,0,4" />
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Outgoing}" BindableLayout.ItemTemplate="{StaticResource PersonTemplate}" />
+                    <VerticalStackLayout IsVisible="{Binding NoRequests}" Spacing="10" Padding="0,56,0,0" HorizontalOptions="Center">
+                        <Border WidthRequest="72" HeightRequest="72" StrokeShape="RoundRectangle 36" StrokeThickness="0" HorizontalOptions="Center"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}">
+                            <controls:IconView Kind="user-plus" Size="30" Accent="True" />
+                        </Border>
+                        <Label Text="Bekleyen istek yok" Style="{StaticResource Headline}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- SEARCH -->
+                <VerticalStackLayout IsVisible="{Binding IsSearchTab}" Spacing="12">
+                    <Border Style="{StaticResource InputBox}">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                            <controls:IconView Kind="search" Size="18" Muted="True" />
+                            <Entry Grid.Column="1" Text="{Binding SearchText}" Placeholder="Kullanıcı adı ara…" MaxLength="24" ReturnType="Search" SemanticProperties.Description="Kullanıcı ara" />
+                            <ActivityIndicator Grid.Column="2" IsRunning="{Binding IsSearching}" IsVisible="{Binding IsSearching}" WidthRequest="20" HeightRequest="20" />
+                        </Grid>
+                    </Border>
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource ErrorText}" IsVisible="{Binding HasError}" />
+                    <Label Text="{Binding SearchHint}" Style="{StaticResource Muted}" FontSize="14" HorizontalTextAlignment="Center" Margin="0,28,0,0" IsVisible="{Binding HasSearchHint}" />
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Results}" BindableLayout.ItemTemplate="{StaticResource PersonTemplate}" />
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- loading: placeholder rows instead of a spinner -->
+        <Grid Grid.Row="3" IsVisible="{Binding IsBusy}" InputTransparent="True" BackgroundColor="{AppThemeBinding Light={StaticResource BgLight}, Dark={StaticResource BgDark}}">
+            <controls:PulseHost IsVisible="{Binding IsBusy}">
+                <VerticalStackLayout Padding="20,16" Spacing="22">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14"><controls:SkeletonView WidthRequest="48" HeightRequest="48" Radius="24" /><VerticalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center"><controls:SkeletonView WidthRequest="120" HeightRequest="14" Radius="7" HorizontalOptions="Start" /><controls:SkeletonView WidthRequest="70" HeightRequest="10" Radius="5" HorizontalOptions="Start" /></VerticalStackLayout></Grid>
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14"><controls:SkeletonView WidthRequest="48" HeightRequest="48" Radius="24" /><VerticalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center"><controls:SkeletonView WidthRequest="100" HeightRequest="14" Radius="7" HorizontalOptions="Start" /><controls:SkeletonView WidthRequest="60" HeightRequest="10" Radius="5" HorizontalOptions="Start" /></VerticalStackLayout></Grid>
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14"><controls:SkeletonView WidthRequest="48" HeightRequest="48" Radius="24" /><VerticalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center"><controls:SkeletonView WidthRequest="140" HeightRequest="14" Radius="7" HorizontalOptions="Start" /><controls:SkeletonView WidthRequest="80" HeightRequest="10" Radius="5" HorizontalOptions="Start" /></VerticalStackLayout></Grid>
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14"><controls:SkeletonView WidthRequest="48" HeightRequest="48" Radius="24" /><VerticalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center"><controls:SkeletonView WidthRequest="110" HeightRequest="14" Radius="7" HorizontalOptions="Start" /><controls:SkeletonView WidthRequest="64" HeightRequest="10" Radius="5" HorizontalOptions="Start" /></VerticalStackLayout></Grid>
+                </VerticalStackLayout>
+            </controls:PulseHost>
+        </Grid>
+        <controls:StateView Grid.Row="3" ErrorMessage="{Binding ErrorMessage}" RetryCommand="{Binding LoadCommand}" />
+    </Grid>
+</ContentPage>

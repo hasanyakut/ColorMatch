@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ColorMatch.Mobile.Controls.ColorComparisonCard"
+             x:Name="root">
+    <!-- Target and found colour side by side as two real colour fields, touching edge to edge so the eye can compare them directly. -->
+    <Border StrokeShape="RoundRectangle 24" StrokeThickness="0" Padding="0" HeightRequest="{Binding CardHeight, Source={x:Reference root}}">
+        <Grid ColumnDefinitions="*,*">
+            <Grid BackgroundColor="{Binding TargetHex, Source={x:Reference root}, Converter={StaticResource HexToColor}}" Padding="18,16"
+                  SemanticProperties.Description="Hedef renk">
+                <Label Text="Hedef" FontFamily="SansSemibold" FontSize="12" VerticalOptions="Start" Opacity="0.8"
+                       TextColor="{Binding TargetHex, Source={x:Reference root}, Converter={StaticResource HexToInk}}" />
+                <Label Text="{Binding TargetHex, Source={x:Reference root}}" FontFamily="SansSemibold" FontSize="16" CharacterSpacing="1.2" VerticalOptions="End"
+                       TextColor="{Binding TargetHex, Source={x:Reference root}, Converter={StaticResource HexToInk}}" />
+            </Grid>
+            <Grid Grid.Column="1" BackgroundColor="{Binding FoundHex, Source={x:Reference root}, Converter={StaticResource HexToColor}}" Padding="18,16"
+                  SemanticProperties.Description="Bulunan renk">
+                <Label Text="Bulunan" FontFamily="SansSemibold" FontSize="12" VerticalOptions="Start" HorizontalOptions="End" Opacity="0.8"
+                       TextColor="{Binding FoundHex, Source={x:Reference root}, Converter={StaticResource HexToInk}}" />
+                <Label Text="{Binding FoundHex, Source={x:Reference root}}" FontFamily="SansSemibold" FontSize="16" CharacterSpacing="1.2" VerticalOptions="End" HorizontalOptions="End"
+                       TextColor="{Binding FoundHex, Source={x:Reference root}, Converter={StaticResource HexToInk}}" />
+            </Grid>
+            <!-- difference marker sitting on the seam -->
+            <Border Grid.ColumnSpan="2" HorizontalOptions="Center" VerticalOptions="Center" Padding="11,6"
+                    StrokeShape="RoundRectangle 12" StrokeThickness="0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                    IsVisible="{Binding DeltaText, Source={x:Reference root}, Converter={StaticResource NotEmpty}}">
+                <Label Text="{Binding DeltaText, Source={x:Reference root}}" FontFamily="SansSemibold" FontSize="12" />
+            </Border>
+        </Grid>
+    </Border>
+</ContentView>

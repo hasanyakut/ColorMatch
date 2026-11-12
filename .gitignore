@@ -1,0 +1,13 @@
+bin/
+obj/
+.vs/
+*.user
+src/ColorMatch.API/storage/
+**/appsettings.Local.json
+*.apk
+*.aab
+
+# build/publish outputs and scratch
+dist/
+dist2/
+*.log

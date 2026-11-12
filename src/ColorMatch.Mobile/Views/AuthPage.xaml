@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
+             x:Class="ColorMatch.Mobile.Views.AuthPage"
+             NavigationPage.HasNavigationBar="False">
+    <ContentPage.Resources>
+        <!-- field label above the input (labels stay visible while typing, unlike placeholders) -->
+        <Style x:Key="FieldLabel" TargetType="Label">
+            <Setter Property="FontFamily" Value="{StaticResource FontMedium}" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource InkMutedLight}, Dark={StaticResource InkMutedDark}}" />
+        </Style>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,28,20,28" Spacing="0">
+
+            <!-- brand: the transparent logo mark, large and centred, then the word and a one-line promise -->
+            <Image x:Name="Logo" Source="logo.png" WidthRequest="188" HeightRequest="188" Aspect="AspectFit" HorizontalOptions="Center"
+                   SemanticProperties.Description="ColorMatch logosu" />
+            <Label Text="ColorMatch" Style="{StaticResource Display}" FontSize="40" HorizontalOptions="Center" Margin="0,14,0,0" />
+            <Label Text="Rengi bul. Fotoğrafla. Paylaş." Style="{StaticResource Muted}" FontSize="16" HorizontalOptions="Center" Margin="0,4,0,0" />
+
+            <!-- the logo's pigments as a thin ribbon -->
+            <Grid ColumnDefinitions="*,*,*,*,*,*" ColumnSpacing="4" HeightRequest="6" Margin="0,22,0,0" WidthRequest="168" HorizontalOptions="Center"
+                  SemanticProperties.Description="ColorMatch renkleri">
+                <BoxView Color="#64305E" CornerRadius="3" />
+                <BoxView Grid.Column="1" Color="#B48BB5" CornerRadius="3" />
+                <BoxView Grid.Column="2" Color="#EE8B9C" CornerRadius="3" />
+                <BoxView Grid.Column="3" Color="#F18C76" CornerRadius="3" />
+                <BoxView Grid.Column="4" Color="#F9A96F" CornerRadius="3" />
+                <BoxView Grid.Column="5" Color="#FDD47B" CornerRadius="3" />
+            </Grid>
+
+            <!-- form card -->
+            <Border Margin="0,32,0,0" Padding="20,22,20,20" StrokeThickness="1" StrokeShape="RoundRectangle 28"
+                    Stroke="{AppThemeBinding Light={StaticResource OutlineLight}, Dark={StaticResource OutlineDark}}"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+            <VerticalStackLayout Spacing="18">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="{Binding TitleText}" Style="{StaticResource Title}" FontSize="24" />
+                    <Label Text="{Binding SubtitleText}" Style="{StaticResource Muted}" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="{Binding IdentityLabel}" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputBox}">
+                        <Entry Text="{Binding Email}" Placeholder="{Binding IdentityPlaceholder}" Keyboard="Email" ReturnType="Next" SemanticProperties.Description="{Binding IdentityLabel}">
+                            <Entry.Triggers>
+                                <DataTrigger TargetType="Entry" Binding="{Binding IsLoginMode}" Value="True">
+                                    <Setter Property="Keyboard" Value="Default" />
+                                </DataTrigger>
+                            </Entry.Triggers>
+                        </Entry>
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="8" IsVisible="{Binding IsRegister}">
+                    <Label Text="Kullanıcı adı" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputBox}">
+                        <Entry Text="{Binding UserName}" Placeholder="harf, rakam, _ veya ." ReturnType="Next" MaxLength="24" SemanticProperties.Description="Kullanıcı adı" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Şifre" Style="{StaticResource FieldLabel}" />
+                    <Border Style="{StaticResource InputBox}" Padding="16,0,6,0">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Entry Text="{Binding Password}" Placeholder="••••••••" IsPassword="{Binding ShowPassword, Converter={StaticResource Not}}"
+                                   ReturnType="Done" ReturnCommand="{Binding SubmitCommand}" SemanticProperties.Description="Şifre" />
+                            <controls:AppButton Grid.Column="1" Text="{Binding PasswordToggleText}" Kind="ghost" Command="{Binding TogglePasswordCommand}" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+                    <Label Text="En az 8 karakter; küçük harf ve rakam içersin." Style="{StaticResource Caption}" IsVisible="{Binding IsRegister}" />
+                </VerticalStackLayout>
+
+                <Label Text="{Binding FieldError}" Style="{StaticResource ErrorText}" IsVisible="{Binding FieldError, Converter={StaticResource NotEmpty}}" />
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource ErrorText}" IsVisible="{Binding HasError}" />
+
+                <controls:AppButton Text="{Binding SubmitText}" Kind="primary" Command="{Binding SubmitCommand}" IsLoading="{Binding IsBusy}" Margin="0,6,0,0" />
+
+                <!-- switch between sign in and sign up: a sentence, not a tab bar -->
+                <HorizontalStackLayout Spacing="6" HorizontalOptions="Center" MinimumHeightRequest="44">
+                    <Label Text="{Binding SwitchPrompt}" Style="{StaticResource Muted}" VerticalOptions="Center" />
+                    <Label Text="{Binding SwitchAction}" FontFamily="{StaticResource FontStrong}" VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}">
+                        <Label.GestureRecognizers><TapGestureRecognizer Command="{Binding ToggleModeCommand}" /></Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
+
+                <!-- or: try without an account -->
+                <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="12" Margin="0,6,0,0">
+                    <BoxView Style="{StaticResource Hairline}" VerticalOptions="Center" />
+                    <Label Grid.Column="1" Text="ya da" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                    <BoxView Grid.Column="2" Style="{StaticResource Hairline}" VerticalOptions="Center" />
+                </Grid>
+                <controls:AppButton Text="Hesapsız dene (demo)" Kind="secondary" Command="{Binding StartDemoCommand}" />
+            </VerticalStackLayout>
+            </Border>
+
+            <controls:AppButton Text="{Binding ServerUrl, StringFormat='Sunucu: {0}'}" Kind="ghost" Command="{Binding ChangeServerCommand}" HorizontalOptions="Center" Margin="0,24,0,0" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

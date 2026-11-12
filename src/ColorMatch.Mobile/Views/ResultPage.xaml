@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
+             x:Class="ColorMatch.Mobile.Views.ResultPage"
+             SizeChanged="OnPageSizeChanged">
+    <Grid>
+    <ScrollView>
+        <VerticalStackLayout x:Name="Stack" Padding="20,8,20,28" Spacing="22">
+
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <controls:IconButton Kind="x" Tone="soft" Size="44" Label="Kapat" Command="{Binding HomeCommand}" />
+                <Label Grid.Column="1" Text="Sonuç" Style="{StaticResource Headline}" HorizontalOptions="Center" VerticalOptions="Center" />
+            </Grid>
+
+            <!-- 1. the answer: score, verdict, progress -->
+            <VerticalStackLayout Spacing="10">
+                <Label Text="Eşleşme skoru" Style="{StaticResource Overline}" />
+                <HorizontalStackLayout Spacing="8">
+                    <Label x:Name="ScoreLabel" Text="0" Style="{StaticResource Figure}" FontSize="88" SemanticProperties.Description="{Binding Score, StringFormat='Eşleşme puanı: 1000 üzerinden {0}'}" />
+                    <Label Text="{Binding ScoreOutOf}" Style="{StaticResource Muted}" FontSize="22" VerticalOptions="End" Margin="0,0,0,14" />
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout Spacing="9">
+                    <controls:IconView x:Name="VerdictIcon" Kind="{Binding VerdictIcon}" Size="22" Accent="True" StrokeWidth="2" VerticalOptions="Center" />
+                    <Label Text="{Binding Headline}" Style="{StaticResource Title}" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+
+                <!-- did this complete the hunt? (an icon and words, not only a colour) -->
+                <HorizontalStackLayout Spacing="7" Margin="0,-2,0,0">
+                    <controls:IconView Kind="{Binding StatusIcon}" Size="16" StrokeWidth="2.4" VerticalOptions="Center">
+                        <controls:IconView.Triggers>
+                            <DataTrigger TargetType="controls:IconView" Binding="{Binding StatusIsGood}" Value="False"><Setter Property="Muted" Value="True" /></DataTrigger>
+                        </controls:IconView.Triggers>
+                    </controls:IconView>
+                    <Label Text="{Binding StatusText}" FontFamily="SansSemibold" FontSize="14" VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource InkMutedLight}, Dark={StaticResource InkMutedDark}}">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding StatusIsGood}" Value="True">
+                                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource SuccessLight}, Dark={StaticResource SuccessDark}}" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </HorizontalStackLayout>
+
+                <!-- advice for the next try -->
+                <Border IsVisible="{Binding HasHint}" StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14,11"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource WarningSoftLight}, Dark={StaticResource WarningSoftDark}}"
+                        SemanticProperties.Description="{Binding HintText, StringFormat='İpucu: {0}'}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <controls:IconView Kind="bulb" Size="19" StrokeWidth="2" VerticalOptions="Center"
+                                           Tint="{AppThemeBinding Light={StaticResource WarningLight}, Dark={StaticResource WarningDark}}" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center">
+                            <Label Text="İpucu" Style="{StaticResource Overline}" />
+                            <Label Text="{Binding HintText}" FontFamily="SansSemibold" FontSize="14" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- progress: one track with tier ticks (500 / 700 / 850 / 950); the fill follows the counting score -->
+                <Grid HeightRequest="10" Margin="0,6,0,0">
+                    <Border x:Name="Track" HeightRequest="10" StrokeThickness="0" StrokeShape="RoundRectangle 5" Padding="0" SizeChanged="OnTrackSizeChanged"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}">
+                        <Border x:Name="Fill" HeightRequest="10" WidthRequest="0" HorizontalOptions="Start" StrokeThickness="0" StrokeShape="RoundRectangle 5"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}" />
+                    </Border>
+                    <Grid ColumnDefinitions="500*,200*,150*,100*,50*" InputTransparent="True">
+                        <BoxView Grid.Column="0" WidthRequest="2" HorizontalOptions="End" Color="{AppThemeBinding Light={StaticResource BgLight}, Dark={StaticResource BgDark}}" />
+                        <BoxView Grid.Column="1" WidthRequest="2" HorizontalOptions="End" Color="{AppThemeBinding Light={StaticResource BgLight}, Dark={StaticResource BgDark}}" />
+                        <BoxView Grid.Column="2" WidthRequest="2" HorizontalOptions="End" Color="{AppThemeBinding Light={StaticResource BgLight}, Dark={StaticResource BgDark}}" />
+                        <BoxView Grid.Column="3" WidthRequest="2" HorizontalOptions="End" Color="{AppThemeBinding Light={StaticResource BgLight}, Dark={StaticResource BgDark}}" />
+                    </Grid>
+                </Grid>
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="{Binding Detail}" Style="{StaticResource Caption}" />
+                    <Label Grid.Column="1" Text="1000" Style="{StaticResource Caption}" />
+                </Grid>
+            </VerticalStackLayout>
+
+            <!-- 2. target and found colour -->
+            <controls:ColorComparisonCard TargetHex="{Binding TargetHex}" FoundHex="{Binding FoundHex}" DeltaText="{Binding DeltaText}" CardHeight="124" />
+
+            <!-- 3. the photo, with the sampled spot marked -->
+            <VerticalStackLayout Spacing="10" IsVisible="{Binding HasPhoto}">
+                <Label Text="Çekilen fotoğraf" Style="{StaticResource Overline}" />
+                <Border x:Name="PhotoFrame" StrokeShape="RoundRectangle 24" StrokeThickness="0" Padding="0" HorizontalOptions="Center" BackgroundColor="Black">
+                    <Grid>
+                        <Image x:Name="Photo" Source="{Binding LocalPhoto}" Aspect="Fill" SemanticProperties.Description="Çekilen fotoğraf" />
+                        <Grid x:Name="Ring" HorizontalOptions="Start" VerticalOptions="Start" InputTransparent="True" SemanticProperties.Description="Rengin örneklendiği bölge">
+                            <Ellipse Stroke="#80000000" StrokeThickness="4" Fill="Transparent" />
+                            <Ellipse Stroke="White" StrokeThickness="2" Fill="Transparent" />
+                        </Grid>
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- 4. what it earned (appears a moment after the score) -->
+            <Border x:Name="XpBlock" Style="{StaticResource Card}" StrokeShape="RoundRectangle 24" Padding="16,14">
+              <VerticalStackLayout Spacing="12">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border WidthRequest="44" HeightRequest="44" StrokeShape="RoundRectangle 12" StrokeThickness="0" VerticalOptions="Center"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}">
+                        <controls:IconView Kind="zap" Size="22" Filled="True" Accent="True" StrokeWidth="1.5" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
+                        <Label Text="{Binding XpText}" FontFamily="SansBold" FontSize="20" />
+                        <Label Text="{Binding LevelText}" Style="{StaticResource Caption}" />
+                    </VerticalStackLayout>
+                    <Border Grid.Column="2" VerticalOptions="Center" Padding="10,6" StrokeShape="RoundRectangle 12" StrokeThickness="0" IsVisible="{Binding IsNewBest}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource WarningSoftLight}, Dark={StaticResource WarningSoftDark}}">
+                        <HorizontalStackLayout Spacing="6">
+                            <controls:IconView Kind="trophy" Size="14" StrokeWidth="2" />
+                            <Label Text="Yeni rekor" FontFamily="SansSemibold" FontSize="12" />
+                        </HorizontalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- extra rewards of this attempt -->
+                <HorizontalStackLayout Spacing="8" IsVisible="{Binding HasBonus}">
+                    <controls:IconView Kind="award" Size="16" StrokeWidth="2.2" VerticalOptions="Center"
+                                       Tint="{AppThemeBinding Light={StaticResource WarningLight}, Dark={StaticResource WarningDark}}" />
+                    <Label Text="{Binding BonusText}" FontFamily="SansSemibold" FontSize="13" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Spacing="8" IsVisible="{Binding LeveledUp}">
+                    <controls:IconView Kind="star" Size="16" StrokeWidth="2.2" Accent="True" VerticalOptions="Center" />
+                    <Label Text="{Binding LevelUpText}" FontFamily="SansSemibold" FontSize="13" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" IsVisible="{Binding HasAtlasUnlock}" controls:Interact.TapFeedback="True"
+                      SemanticProperties.Description="{Binding AtlasTitle}" SemanticProperties.Hint="Atlası açmak için dokun">
+                    <Border WidthRequest="34" HeightRequest="34" StrokeShape="RoundRectangle 10" StrokeThickness="0" VerticalOptions="Center"
+                            BackgroundColor="{Binding AtlasHex, Converter={StaticResource HexToColor}}" />
+                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
+                        <Label Text="{Binding AtlasTitle}" FontFamily="SansSemibold" FontSize="14" />
+                        <Label Text="{Binding AtlasDetail}" Style="{StaticResource Caption}" />
+                    </VerticalStackLayout>
+                    <controls:IconView Grid.Column="2" Kind="chevron-right" Size="16" Muted="True" VerticalOptions="Center" />
+                    <Grid.GestureRecognizers><TapGestureRecognizer Command="{Binding OpenAtlasCommand}" /></Grid.GestureRecognizers>
+                </Grid>
+                <BoxView Style="{StaticResource Hairline}" />
+                <Label Text="{Binding DailyText}" Style="{StaticResource Caption}" />
+              </VerticalStackLayout>
+            </Border>
+
+            <Label Text="{Binding ErrorMessage}" Style="{StaticResource ErrorText}" IsVisible="{Binding HasError}" />
+            <Label Text="{Binding InfoMessage}" Style="{StaticResource SuccessText}" IsVisible="{Binding InfoMessage, Converter={StaticResource NotEmpty}}" />
+
+            <!-- 5. actions: Share is primary, Try again secondary -->
+            <VerticalStackLayout Spacing="10">
+                <controls:AppButton Text="Fotoğrafı paylaş" Kind="primary" Command="{Binding PublishCommand}" IsLoading="{Binding IsBusy}" IsVisible="{Binding CanPublish}" />
+                <controls:AppButton Text="Tekrar dene" Kind="secondary" Command="{Binding TryAgainCommand}" />
+                <controls:AppButton Text="Bingo tahtasına dön" Kind="secondary" Command="{Binding OpenBingoCommand}" IsVisible="{Binding HasBingo}" />
+                <controls:AppButton Text="Düellolara dön" Kind="secondary" Command="{Binding OpenDuelsCommand}" IsVisible="{Binding HasDuel}" />
+                <controls:AppButton Text="Başka uygulamada paylaş" Kind="ghost" Command="{Binding ShareExternalCommand}" HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+
+    <controls:CaptionSheet IsOpen="{Binding IsCaptionOpen}" Text="{Binding CaptionText, Mode=TwoWay}" Title="Notunu ekle" Subtitle="{Binding CaptionSubtitle}" ConfirmText="Paylaş"
+                           ConfirmCommand="{Binding ConfirmPublishCommand}" CancelCommand="{Binding CancelPublishCommand}" />
+
+    <!-- reward moments: banners (level up, streak, bingo, atlas, duel) and a small burst -->
+    <Grid x:Name="BurstLayer" WidthRequest="1" HeightRequest="1" HorizontalOptions="Center" VerticalOptions="Start" Margin="0,100,0,0" InputTransparent="True" CascadeInputTransparent="True" />
+    <VerticalStackLayout x:Name="Celebration" VerticalOptions="Start" Margin="20,64,20,0" Spacing="8" InputTransparent="True" CascadeInputTransparent="True" />
+    </Grid>
+</ContentPage>

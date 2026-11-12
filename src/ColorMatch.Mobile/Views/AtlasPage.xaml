@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
+             xmlns:vm="clr-namespace:ColorMatch.Mobile.ViewModels"
+             x:Class="ColorMatch.Mobile.Views.AtlasPage"
+             SizeChanged="OnPageSizeChanged">
+    <Grid RowDefinitions="*,Auto">
+    <ScrollView>
+        <VerticalStackLayout Padding="20,8,20,112" Spacing="18">
+
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="0">
+                <VerticalStackLayout VerticalOptions="Center" Spacing="0">
+                    <Label Text="Renk Atlası" Style="{StaticResource LargeTitle}" />
+                    <Label Text="{Binding SummaryText}" Style="{StaticResource Caption}" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- loading -->
+            <VerticalStackLayout Spacing="12" IsVisible="{Binding ShowSkeleton}">
+                <controls:SkeletonView HeightRequest="42" Radius="14" />
+                <controls:SkeletonView HeightRequest="90" Radius="22" />
+                <controls:SkeletonView HeightRequest="300" Radius="22" />
+            </VerticalStackLayout>
+
+            <!-- error -->
+            <VerticalStackLayout Spacing="10" IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource ErrorText}" />
+                <controls:AppButton Text="Tekrar dene" Kind="secondary" Command="{Binding LoadCommand}" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="18" IsVisible="{Binding Loaded}" controls:Reveal.Stagger="True">
+
+                <!-- the five collections -->
+                <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never" Margin="-20,0">
+                    <HorizontalStackLayout Spacing="8" Padding="20,0" BindableLayout.ItemsSource="{Binding Tabs}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate>
+                                <Border StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="12,0" HeightRequest="44" controls:Interact.TapFeedback="True"
+                                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}"
+                                        SemanticProperties.Description="{Binding Name}">
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource InkLight}, Dark={StaticResource InkDark}}" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                                        <Border WidthRequest="12" HeightRequest="12" StrokeShape="RoundRectangle 6" StrokeThickness="0" VerticalOptions="Center"
+                                                BackgroundColor="{Binding AccentHex, Converter={StaticResource HexToColor}}" />
+                                        <Label Text="{Binding Name}" FontFamily="SansSemibold" FontSize="14" VerticalOptions="Center">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnInkLight}, Dark={StaticResource OnInkDark}}" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                        <Label Text="{Binding CountText}" FontSize="12" VerticalOptions="Center" Opacity="0.7">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnInkLight}, Dark={StaticResource OnInkDark}}" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </HorizontalStackLayout>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectCommand, Source={RelativeSource AncestorType={x:Type vm:AtlasViewModel}}}" CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </HorizontalStackLayout>
+                </ScrollView>
+
+                <!-- selected collection: progress and reward -->
+                <VerticalStackLayout Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="{Binding CollectionName}" Style="{StaticResource Headline}" />
+                        <Label Grid.Column="1" Text="{Binding ProgressText}" FontFamily="SansSemibold" FontSize="15" VerticalOptions="Center" />
+                    </Grid>
+                    <Label Text="{Binding CollectionDescription}" Style="{StaticResource Caption}" />
+                    <ProgressBar controls:Smooth.Progress="{Binding CollectionProgress}" HeightRequest="8" />
+                    <HorizontalStackLayout Spacing="7">
+                        <controls:IconView Kind="award" Size="15" StrokeWidth="2.2" VerticalOptions="Center"
+                                           Tint="{AppThemeBinding Light={StaticResource WarningLight}, Dark={StaticResource WarningDark}}" />
+                        <Label Text="{Binding RewardText}" FontFamily="SansSemibold" FontSize="13" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- the twenty colours -->
+                <FlexLayout HeightRequest="{Binding GridHeight}" Wrap="Wrap" JustifyContent="Start" AlignItems="Start" AlignContent="Start" Margin="0,0,-8,0" BindableLayout.ItemsSource="{Binding Tiles}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,0,8,8" controls:Interact.TapFeedback="True"
+                                  WidthRequest="{Binding TileSize, Source={RelativeSource AncestorType={x:Type vm:AtlasViewModel}}}"
+                                  HeightRequest="{Binding TileSize, Source={RelativeSource AncestorType={x:Type vm:AtlasViewModel}}}"
+                                  SemanticProperties.Description="{Binding Description}">
+                                <!-- locked -->
+                                <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" IsVisible="{Binding Locked}"
+                                        BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}" />
+                                <controls:IconView Kind="lock" Size="22" Muted="True" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding IsPlainLocked}" />
+                                <!-- locked, but it is one of today's hunts: its colour is already known -->
+                                <Border StrokeThickness="2.5" StrokeShape="RoundRectangle 16" BackgroundColor="Transparent" Stroke="{Binding RingBrush}" IsVisible="{Binding IsTodayLocked}">
+                                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="2">
+                                        <Border WidthRequest="22" HeightRequest="22" StrokeShape="RoundRectangle 11" StrokeThickness="0"
+                                                BackgroundColor="{Binding Hex, Converter={StaticResource HexToColor}}" HorizontalOptions="Center" />
+                                        <Label Text="Bugün" FontFamily="SansSemibold" FontSize="11" HorizontalTextAlignment="Center" />
+                                    </VerticalStackLayout>
+                                </Border>
+                                <!-- unlocked -->
+                                <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" IsVisible="{Binding Unlocked}"
+                                        BackgroundColor="{Binding Hex, Converter={StaticResource HexToColor}}">
+                                    <Label Text="{Binding Name}" FontFamily="SansSemibold" FontSize="11" HorizontalTextAlignment="Center" VerticalOptions="End" Margin="4,0,4,8"
+                                           LineBreakMode="WordWrap" MaxLines="2" TextColor="{Binding Hex, Converter={StaticResource HexToInk}}" />
+                                </Border>
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ShowTileCommand, Source={RelativeSource AncestorType={x:Type vm:AtlasViewModel}}}" CommandParameter="{Binding .}" />
+                                </Grid.GestureRecognizers>
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </FlexLayout>
+
+                <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 18" Padding="14,12">
+                    <Label Text="{Binding DetailText}" Style="{StaticResource Caption}" />
+                </Border>
+
+                <Label Text="Renkler, günlük avlarda sırası geldiğinde ve fotoğrafın en az 700 puan aldığında açılır. Her renk yaklaşık 33 günde bir ava çıkar."
+                       Style="{StaticResource Caption}" />
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+    <controls:BottomBar Grid.RowSpan="2" VerticalOptions="End" ActiveTab="atlas" />
+    </Grid>
+</ContentPage>

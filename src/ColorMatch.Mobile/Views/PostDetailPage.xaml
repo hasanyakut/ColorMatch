@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
+             xmlns:vm="clr-namespace:ColorMatch.Mobile.ViewModels"
+             x:Class="ColorMatch.Mobile.Views.PostDetailPage">
+    <ContentPage.Resources>
+        <!-- small horizontal strip of related posts -->
+        <DataTemplate x:Key="RelatedTile">
+            <controls:PhotoCard WidthRequest="124" HeightRequest="156" Radius="16" ShowChip="False" ImageUrl="{Binding ImageUrl}" Hex="{Binding ColorHex}" IsCollage="{Binding IsCollage}"
+                                SemanticProperties.Description="{Binding AuthorName, StringFormat='{0} gönderisi'}">
+                <controls:PhotoCard.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding OpenOtherCommand, Source={RelativeSource AncestorType={x:Type vm:PostDetailViewModel}}}" CommandParameter="{Binding .}" />
+                </controls:PhotoCard.GestureRecognizers>
+            </controls:PhotoCard>
+        </DataTemplate>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView x:Name="Scroll">
+            <VerticalStackLayout Spacing="18" Padding="0,0,0,24">
+
+                <!-- the picture leads: edge to edge, with the controls floating on it -->
+                <Grid>
+                    <controls:PostMedia ImageUrl="{Binding Post.ImageUrl}" Hex="{Binding Post.ColorHex}" IsCollage="{Binding Post.IsCollage}" Radius="0"
+                                        MaxPhotoHeight="620" PlaceholderHeight="460" DoubleTappedCommand="{Binding Post.LikeCommand}"
+                                        SemanticProperties.Description="Gönderi görseli" SemanticProperties.Hint="Beğenmek için çift dokun" />
+
+                    <Grid ColumnDefinitions="Auto,*,Auto" Padding="14,12" VerticalOptions="Start">
+                        <Border WidthRequest="44" HeightRequest="44" StrokeShape="RoundRectangle 22" StrokeThickness="0" BackgroundColor="#8C000000"
+                                SemanticProperties.Description="Geri">
+                            <controls:IconView Kind="arrow-left" Size="20" Tint="White" StrokeWidth="2.2" HorizontalOptions="Center" VerticalOptions="Center" />
+                            <Border.GestureRecognizers><TapGestureRecognizer Command="{Binding BackCommand}" /></Border.GestureRecognizers>
+                        </Border>
+                        <Border Grid.Column="2" HeightRequest="34" Padding="12,0" StrokeShape="RoundRectangle 17" StrokeThickness="0" BackgroundColor="#8C000000" VerticalOptions="Center">
+                            <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                <controls:IconView Kind="{Binding Post.TypeIcon}" Size="14" Tint="White" StrokeWidth="2" VerticalOptions="Center" />
+                                <Label Text="{Binding Post.TypeText}" FontFamily="SansSemibold" FontSize="13" TextColor="White" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </Border>
+                    </Grid>
+                </Grid>
+
+                <!-- one sheet under the picture, slightly overlapping it: who, what they said, reactions, the colour -->
+                <Border Margin="0,-28,0,0" Padding="20,22,20,20" StrokeThickness="0" StrokeShape="RoundRectangle 28,28,0,0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource BgLight}, Dark={StaticResource BgDark}}">
+                    <VerticalStackLayout Spacing="18">
+
+                        <!-- author: the whole row opens the profile -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" MinimumHeightRequest="48" SemanticProperties.Description="{Binding Post.AuthorName, StringFormat='{0} profilini aç'}">
+                            <controls:AvatarView SourceUrl="{Binding Post.AuthorAvatar}" Name="{Binding Post.AuthorName}" Size="44" VerticalOptions="Center" />
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
+                                <Label Text="{Binding Post.AuthorName}" FontFamily="SansBold" FontSize="17" LineHeight="1.15" />
+                                <Label Text="{Binding AuthorMeta}" Style="{StaticResource Caption}" IsVisible="{Binding HasAuthorProfile}" />
+                            </VerticalStackLayout>
+                            <controls:IconView Grid.Column="2" Kind="chevron-right" Size="18" Muted="True" VerticalOptions="Center" IsVisible="{Binding IsOwnPost, Converter={StaticResource Not}}" />
+                            <controls:AppButton Grid.Column="2" Text="Sil" Kind="ghost" Command="{Binding DeleteCommand}" IsVisible="{Binding IsOwnPost}" VerticalOptions="Center" />
+                            <Grid.GestureRecognizers><TapGestureRecognizer Command="{Binding OpenProfileCommand}" /></Grid.GestureRecognizers>
+                        </Grid>
+
+                        <!-- the note, as the voice of the post -->
+                        <Label Text="{Binding Post.Caption}" IsVisible="{Binding Post.HasCaption}" FontSize="18" LineHeight="1.35" />
+
+                        <!-- reactions as two pills, date on the right -->
+                        <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="8">
+                            <Border Style="{StaticResource Chip}" Padding="14,0" MinimumHeightRequest="40" StrokeShape="RoundRectangle 20" controls:Interact.TapFeedback="True"
+                                    SemanticProperties.Description="Beğen">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding Post.LikedByMe}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <HorizontalStackLayout Spacing="7" VerticalOptions="Center">
+                                    <Grid WidthRequest="20" HeightRequest="20" VerticalOptions="Center">
+                                        <controls:IconView Kind="heart" Size="18" IsVisible="{Binding Post.LikedByMe, Converter={StaticResource Not}}" />
+                                        <controls:IconView Kind="heart" Size="18" Filled="True" Accent="True" IsVisible="{Binding Post.LikedByMe}" />
+                                    </Grid>
+                                    <Label Text="{Binding Post.LikeText}" FontFamily="SansSemibold" VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                                <Border.GestureRecognizers><TapGestureRecognizer Command="{Binding Post.ToggleLikeCommand}" /></Border.GestureRecognizers>
+                            </Border>
+                            <Border Grid.Column="1" Style="{StaticResource Chip}" Padding="14,0" MinimumHeightRequest="40" StrokeShape="RoundRectangle 20" SemanticProperties.Description="Yorum sayısı">
+                                <HorizontalStackLayout Spacing="7" VerticalOptions="Center">
+                                    <controls:IconView Kind="comment" Size="18" VerticalOptions="Center" />
+                                    <Label Text="{Binding Post.CommentText}" FontFamily="SansSemibold" VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </Border>
+                            <Label Grid.Column="2" Text="{Binding Post.FullDateText}" Style="{StaticResource Caption}" HorizontalOptions="End" VerticalOptions="Center" HorizontalTextAlignment="End" />
+                        </Grid>
+
+                        <!-- the colour of the post: swatch, name, codes and its tonal ladder in one strip -->
+                        <VerticalStackLayout Spacing="12" IsVisible="{Binding Post.HasColor}">
+                            <BoxView Style="{StaticResource Hairline}" />
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                <Border WidthRequest="56" HeightRequest="56" StrokeShape="RoundRectangle 16" StrokeThickness="0" VerticalOptions="Center"
+                                        BackgroundColor="{Binding Post.ColorHex, Converter={StaticResource HexToColor}}" SemanticProperties.Description="Gönderinin rengi" />
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
+                                    <Label Text="{Binding Post.ColorFamily}" FontFamily="SansBold" FontSize="17" />
+                                    <Label Text="{Binding Post.RgbText}" Style="{StaticResource Caption}" />
+                                </VerticalStackLayout>
+                                <Border Grid.Column="2" Style="{StaticResource Chip}" Padding="12,0" MinimumHeightRequest="40" StrokeShape="RoundRectangle 20" VerticalOptions="Center"
+                                        controls:Interact.TapFeedback="True" SemanticProperties.Description="HEX kodunu kopyala">
+                                    <HorizontalStackLayout Spacing="7" VerticalOptions="Center">
+                                        <Label Text="{Binding Post.ColorHex}" FontFamily="SansSemibold" FontSize="13" CharacterSpacing="0.6" VerticalOptions="Center" />
+                                        <controls:IconView Kind="copy" Size="14" Muted="True" VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                    <Border.GestureRecognizers><TapGestureRecognizer Command="{Binding CopyHexCommand}" /></Border.GestureRecognizers>
+                                </Border>
+                            </Grid>
+                            <Border HeightRequest="14" StrokeShape="RoundRectangle 7" StrokeThickness="0" Padding="0" SemanticProperties.Description="Rengin koyu ve açık tonları">
+                                <Grid ColumnDefinitions="*,*,*,*,*">
+                                    <BoxView Color="{Binding Post.Tones[0].Hex, Converter={StaticResource HexToColor}}" />
+                                    <BoxView Grid.Column="1" Color="{Binding Post.Tones[1].Hex, Converter={StaticResource HexToColor}}" />
+                                    <BoxView Grid.Column="2" Color="{Binding Post.Tones[2].Hex, Converter={StaticResource HexToColor}}" />
+                                    <BoxView Grid.Column="3" Color="{Binding Post.Tones[3].Hex, Converter={StaticResource HexToColor}}" />
+                                    <BoxView Grid.Column="4" Color="{Binding Post.Tones[4].Hex, Converter={StaticResource HexToColor}}" />
+                                </Grid>
+                            </Border>
+                            <Label Text="{Binding InfoMessage}" Style="{StaticResource SuccessText}" FontSize="13" IsVisible="{Binding InfoMessage, Converter={StaticResource NotEmpty}}" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+
+                <!-- comments -->
+                <VerticalStackLayout Spacing="14">
+                    <Grid ColumnDefinitions="*,Auto" Padding="20,0">
+                        <Label Text="Yorumlar" Style="{StaticResource Title}" />
+                        <Label Grid.Column="1" Text="{Binding Post.CommentText}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                    </Grid>
+
+                    <Label Text="{Binding ErrorMessage}" Style="{StaticResource ErrorText}" IsVisible="{Binding HasError}" Padding="20,0" />
+                    <controls:PulseHost IsVisible="{Binding IsBusy}">
+                        <VerticalStackLayout Spacing="18" Padding="20,4">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12"><controls:SkeletonView WidthRequest="34" HeightRequest="34" Radius="17" VerticalOptions="Start" /><VerticalStackLayout Grid.Column="1" Spacing="7"><controls:SkeletonView WidthRequest="90" HeightRequest="12" Radius="6" HorizontalOptions="Start" /><controls:SkeletonView HeightRequest="12" Radius="6" /></VerticalStackLayout></Grid>
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12"><controls:SkeletonView WidthRequest="34" HeightRequest="34" Radius="17" VerticalOptions="Start" /><VerticalStackLayout Grid.Column="1" Spacing="7"><controls:SkeletonView WidthRequest="70" HeightRequest="12" Radius="6" HorizontalOptions="Start" /><controls:SkeletonView WidthRequest="200" HeightRequest="12" Radius="6" HorizontalOptions="Start" /></VerticalStackLayout></Grid>
+                        </VerticalStackLayout>
+                    </controls:PulseHost>
+
+                    <Border Style="{StaticResource CardAlt}" Margin="16,0" Padding="16,14" IsVisible="{Binding NoComments}">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <controls:IconView Kind="comment" Size="22" Muted="True" VerticalOptions="Center" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="1">
+                                <Label Text="Henüz yorum yok" FontFamily="SansSemibold" />
+                                <Label Text="İlk yorumu sen yaz; aşağıdaki alandan." Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Comments}" Spacing="18" Padding="20,0">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                    <controls:AvatarView SourceUrl="{Binding Author.AvatarUrl}" Name="{Binding Author.UserName}" Size="34" VerticalOptions="Start" />
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                        <HorizontalStackLayout Spacing="8">
+                                            <Label Text="{Binding Author.UserName}" FontFamily="SansSemibold" FontSize="14" />
+                                            <Label Text="{Binding CreatedAtUtc, Converter={StaticResource TimeAgo}}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                                        </HorizontalStackLayout>
+                                        <Label Text="{Binding Text}" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                    <controls:AppButton Text="Daha fazla yorum" Kind="ghost" Command="{Binding MoreCommentsCommand}" IsVisible="{Binding CanLoadMoreComments}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+
+                <!-- more in the same colour family -->
+                <VerticalStackLayout Spacing="12" IsVisible="{Binding HasSameColor}">
+                    <Label Text="{Binding SameColorTitle}" Style="{StaticResource Title}" Padding="20,0" />
+                    <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                        <HorizontalStackLayout Spacing="10" Padding="20,0" BindableLayout.ItemsSource="{Binding SameColor}" BindableLayout.ItemTemplate="{StaticResource RelatedTile}" />
+                    </ScrollView>
+                </VerticalStackLayout>
+
+                <!-- more by the same person -->
+                <VerticalStackLayout Spacing="12" IsVisible="{Binding HasMoreByAuthor}">
+                    <Label Text="{Binding MoreByAuthorTitle}" Style="{StaticResource Title}" Padding="20,0" />
+                    <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                        <HorizontalStackLayout Spacing="10" Padding="20,0" BindableLayout.ItemsSource="{Binding MoreByAuthor}" BindableLayout.ItemTemplate="{StaticResource RelatedTile}" />
+                    </ScrollView>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Border Grid.Row="1" StrokeThickness="0" Padding="16,10,16,12" StrokeShape="RoundRectangle 0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                <Border Style="{StaticResource InputBox}">
+                    <Entry Text="{Binding NewComment}" Placeholder="Yorum yaz…" MaxLength="500" ReturnType="Send" ReturnCommand="{Binding SendCommentCommand}" SemanticProperties.Description="Yorum yaz" />
+                </Border>
+                <controls:AppButton Grid.Column="1" Text="Gönder" Kind="primary" Command="{Binding SendCommentCommand}" IsLoading="{Binding IsSending}" VerticalOptions="Center" />
+            </Grid>
+        </Border>
+    </Grid>
+</ContentPage>

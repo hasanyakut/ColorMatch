@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
+             x:Class="ColorMatch.Mobile.Controls.StateView"
+             x:Name="root">
+    <!-- Loading / error / empty placeholder. Bind IsLoading, ErrorMessage, IsEmpty; RetryCommand is optional. -->
+    <Grid>
+        <ActivityIndicator IsRunning="{Binding IsLoading, Source={x:Reference root}}" IsVisible="{Binding IsLoading, Source={x:Reference root}}"
+                           HorizontalOptions="Center" VerticalOptions="Center" WidthRequest="32" HeightRequest="32" />
+
+        <VerticalStackLayout Spacing="10" HorizontalOptions="Center" VerticalOptions="Center" Padding="40,24" IsVisible="{Binding ShowError, Source={x:Reference root}}">
+            <Border WidthRequest="72" HeightRequest="72" StrokeShape="RoundRectangle 36" StrokeThickness="0" HorizontalOptions="Center" Margin="0,0,0,6"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource WarningSoftLight}, Dark={StaticResource WarningSoftDark}}">
+                <controls:IconView Kind="{Binding ErrorIcon, Source={x:Reference root}}" Size="30" Tint="{AppThemeBinding Light={StaticResource WarningLight}, Dark={StaticResource WarningDark}}" />
+            </Border>
+            <Label Text="{Binding ErrorTitle, Source={x:Reference root}}" Style="{StaticResource Headline}" HorizontalTextAlignment="Center" />
+            <Label Text="{Binding ErrorMessage, Source={x:Reference root}}" Style="{StaticResource Muted}" HorizontalTextAlignment="Center" FontSize="14" />
+            <controls:AppButton Text="Tekrar dene" Kind="secondary" Compact="True" HorizontalOptions="Center" Margin="0,8,0,0"
+                                Command="{Binding RetryCommand, Source={x:Reference root}}" IsVisible="{Binding HasRetry, Source={x:Reference root}}" />
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Spacing="10" HorizontalOptions="Center" VerticalOptions="Center" Padding="40,24" IsVisible="{Binding ShowEmpty, Source={x:Reference root}}">
+            <Border WidthRequest="72" HeightRequest="72" StrokeShape="RoundRectangle 36" StrokeThickness="0" HorizontalOptions="Center" Margin="0,0,0,6"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}">
+                <controls:IconView Kind="{Binding EmptyIcon, Source={x:Reference root}}" Size="30" Accent="True" />
+            </Border>
+            <Label Text="{Binding EmptyTitle, Source={x:Reference root}}" Style="{StaticResource Headline}" HorizontalTextAlignment="Center"
+                   IsVisible="{Binding EmptyTitle, Source={x:Reference root}, Converter={StaticResource NotEmpty}}" />
+            <Label Text="{Binding EmptyText, Source={x:Reference root}}" Style="{StaticResource Muted}" HorizontalTextAlignment="Center" FontSize="14" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentView>

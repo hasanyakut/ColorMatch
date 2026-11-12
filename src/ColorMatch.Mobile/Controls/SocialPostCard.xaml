@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
+             x:Class="ColorMatch.Mobile.Controls.SocialPostCard"
+             x:Name="root">
+    <!-- BindingContext = PostItemViewModel. No card, no border: the picture carries the post, space does the separating.
+         Open/Author commands are supplied by the hosting page. -->
+    <VerticalStackLayout Spacing="12">
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10" Padding="20,0" MinimumHeightRequest="44">
+            <controls:AvatarView SourceUrl="{Binding AuthorAvatar}" Name="{Binding AuthorName}" Size="34" VerticalOptions="Center" />
+            <HorizontalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center">
+                <Label Text="{Binding AuthorName}" FontFamily="SansSemibold" FontSize="14" VerticalOptions="Center" />
+                <Label Text="{Binding TimeText, StringFormat='· {0}'}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding AuthorCommand, Source={x:Reference root}}" CommandParameter="{Binding .}" />
+            </Grid.GestureRecognizers>
+        </Grid>
+
+        <controls:PostMedia ImageUrl="{Binding ImageUrl}" Hex="{Binding ColorHex}" IsCollage="{Binding IsCollage}" Margin="16,0"
+                            TappedCommand="{Binding OpenCommand, Source={x:Reference root}}" TappedParameter="{Binding .}"
+                            DoubleTappedCommand="{Binding LikeCommand}"
+                            SemanticProperties.Description="Gönderi görseli" SemanticProperties.Hint="Açmak için dokun, beğenmek için çift dokun" />
+
+        <Grid ColumnDefinitions="Auto,Auto,*" Padding="14,0,20,0">
+            <HorizontalStackLayout Spacing="6" Padding="6,0" MinimumHeightRequest="44" SemanticProperties.Description="Beğen">
+                <Grid WidthRequest="24" HeightRequest="24" VerticalOptions="Center">
+                    <controls:IconView Kind="heart" Muted="True" IsVisible="{Binding LikedByMe, Converter={StaticResource Not}}" />
+                    <controls:IconView Kind="heart" Filled="True" Accent="True" IsVisible="{Binding LikedByMe}" />
+                </Grid>
+                <Label Text="{Binding LikeText}" VerticalOptions="Center" FontSize="14" FontFamily="SansSemibold" />
+                <HorizontalStackLayout.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ToggleLikeCommand}" />
+                </HorizontalStackLayout.GestureRecognizers>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Grid.Column="1" Spacing="6" Padding="10,0" MinimumHeightRequest="44" SemanticProperties.Description="Yorumlar">
+                <controls:IconView Kind="comment" Muted="True" VerticalOptions="Center" />
+                <Label Text="{Binding CommentText}" VerticalOptions="Center" FontSize="14" FontFamily="SansSemibold" />
+                <HorizontalStackLayout.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding OpenCommand, Source={x:Reference root}}" CommandParameter="{Binding .}" />
+                </HorizontalStackLayout.GestureRecognizers>
+            </HorizontalStackLayout>
+        </Grid>
+
+        <controls:PostColorStrip Margin="20,-6,20,0" IsVisible="{Binding HasColor}" />
+
+        <Label Text="{Binding Caption}" IsVisible="{Binding HasCaption}" Padding="20,0" MaxLines="3" LineBreakMode="TailTruncation" />
+    </VerticalStackLayout>
+</ContentView>

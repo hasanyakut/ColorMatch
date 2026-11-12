@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!--
+        ColorMatch palette — "night & highlighter".
+        Cream paper by day, deep ink-navy by night; the interface itself is confident and a little playful, like a marker set:
+        Lime (the highlighter) is the colour of the main action in both themes, Indigo carries links and progress on paper,
+        Pink is the spark for rewards and the hunt, Mint means success, Sun-yellow means streaks. Photos and target colours stay the heroes.
+    -->
+
+    <!-- ===== Paper (surfaces) ===== -->
+    <Color x:Key="BgLight">#FBF7EF</Color>
+    <Color x:Key="BgDark">#0F1226</Color>
+    <Color x:Key="SurfaceLight">#FFFFFF</Color>
+    <Color x:Key="SurfaceDark">#1A1E3D</Color>
+    <!-- recessed areas (inputs, skeletons, tiles) -->
+    <Color x:Key="SurfaceAltLight">#F1EADB</Color>
+    <Color x:Key="SurfaceAltDark">#252A52</Color>
+    <Color x:Key="OutlineLight">#E5DCC8</Color>
+    <Color x:Key="OutlineDark">#323869</Color>
+
+    <!-- ===== Ink (text) ===== -->
+    <Color x:Key="InkLight">#0F1226</Color>
+    <Color x:Key="InkDark">#F6F3EA</Color>
+    <!-- secondary text: ≥ 5:1 on the paper background in both themes -->
+    <Color x:Key="InkMutedLight">#5A5E78</Color>
+    <Color x:Key="InkMutedDark">#A6ABCB</Color>
+
+    <!-- ===== Brand: Indigo on paper, Lime on night ===== -->
+    <Color x:Key="AccentLight">#4353FF</Color>
+    <Color x:Key="AccentDark">#C6F432</Color>
+    <Color x:Key="AccentSoftLight">#E3E6FF</Color>
+    <Color x:Key="AccentSoftDark">#2B3613</Color>
+    <Color x:Key="OnAccentLight">#FFFFFF</Color>
+    <Color x:Key="OnAccentDark">#0F1226</Color>
+
+    <!-- ===== Supporting pigments ===== -->
+    <Color x:Key="PlumLight">#D6246E</Color>
+    <Color x:Key="PlumDark">#FF7FAB</Color>
+
+    <!-- ===== Feedback ===== -->
+    <Color x:Key="SuccessLight">#0B8F6F</Color>
+    <Color x:Key="SuccessDark">#3FE0B5</Color>
+    <Color x:Key="SuccessSoftLight">#D9F5EC</Color>
+    <Color x:Key="SuccessSoftDark">#10352D</Color>
+    <!-- Ochre: streaks, rewards, warnings -->
+    <Color x:Key="WarningLight">#B97F00</Color>
+    <Color x:Key="WarningDark">#FFD54A</Color>
+    <Color x:Key="WarningSoftLight">#FFF1C7</Color>
+    <Color x:Key="WarningSoftDark">#3B3212</Color>
+    <Color x:Key="ErrorLight">#D12A4A</Color>
+    <Color x:Key="ErrorDark">#FF7F96</Color>
+
+    <!-- ===== Marker set (theme independent) ===== -->
+    <Color x:Key="Lime">#C6F432</Color>
+    <Color x:Key="LimeDeep">#8FB61A</Color>
+    <Color x:Key="Pink">#FF4F8B</Color>
+    <Color x:Key="PinkDeep">#D42F6B</Color>
+    <Color x:Key="Indigo">#4353FF</Color>
+    <Color x:Key="IndigoDeep">#2A36C9</Color>
+    <Color x:Key="Night">#0F1226</Color>
+
+    <!-- inverse (ink-on-paper) used by primary buttons -->
+    <Color x:Key="OnInkLight">#FBF7EF</Color>
+    <Color x:Key="OnInkDark">#0F1226</Color>
+
+    <!-- ===== Spacing: 4 / 8 base grid ===== -->
+    <x:Double x:Key="Space1">4</x:Double>
+    <x:Double x:Key="Space2">8</x:Double>
+    <x:Double x:Key="Space3">12</x:Double>
+    <x:Double x:Key="Space4">16</x:Double>
+    <x:Double x:Key="Space5">20</x:Double>
+    <x:Double x:Key="Space6">24</x:Double>
+    <x:Double x:Key="Space8">32</x:Double>
+    <x:Double x:Key="Space10">40</x:Double>
+    <Thickness x:Key="PagePadding">20,16,20,24</Thickness>
+    <Thickness x:Key="PageGutter">20,0</Thickness>
+
+    <!-- ===== Radius: 12 / 16 / 24 / 28 ===== -->
+    <CornerRadius x:Key="RadiusSm">12</CornerRadius>
+    <CornerRadius x:Key="RadiusMd">16</CornerRadius>
+    <CornerRadius x:Key="RadiusLg">24</CornerRadius>
+    <x:Int32 x:Key="ButtonRadius">18</x:Int32>
+
+    <!-- ===== Type =====
+         Bricolage Grotesque (ExtraBold / Bold / SemiBold) for everything with a voice: screen titles, colour names, scores, buttons.
+         Instrument Sans (Regular / Medium / SemiBold / Bold) for everything you read. -->
+    <x:String x:Key="FontRegular">SansRegular</x:String>
+    <x:String x:Key="FontMedium">SansMedium</x:String>
+    <x:String x:Key="FontStrong">SansSemibold</x:String>
+    <x:String x:Key="FontHeavy">DisplayHeavy</x:String>
+    <x:String x:Key="FontDisplaySemi">DisplaySemi</x:String>
+    <x:String x:Key="FontTextBold">TextBold</x:String>
+    <x:Double x:Key="FontDisplay">40</x:Double>
+    <x:Double x:Key="FontLargeTitle">32</x:Double>
+    <x:Double x:Key="FontScreenTitle">22</x:Double>
+    <x:Double x:Key="FontSectionHeading">18</x:Double>
+    <x:Double x:Key="FontBody">15</x:Double>
+    <x:Double x:Key="FontCaption">13</x:Double>
+    <x:Double x:Key="FontLabel">12</x:Double>
+    <x:Double x:Key="FontButton">15</x:Double>
+
+    <!-- legacy names still referenced by older XAML -->
+    <Color x:Key="Primary">#4353FF</Color>
+    <Color x:Key="White">#FFFFFF</Color>
+    <Color x:Key="Black">#000000</Color>
+</ResourceDictionary>

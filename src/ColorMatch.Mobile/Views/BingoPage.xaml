@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
+             xmlns:vm="clr-namespace:ColorMatch.Mobile.ViewModels"
+             x:Class="ColorMatch.Mobile.Views.BingoPage"
+             SizeChanged="OnPageSizeChanged">
+    <ScrollView>
+        <VerticalStackLayout Padding="20,8,20,40" Spacing="18">
+
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                <controls:IconButton Kind="arrow-left" Tone="soft" Label="Geri" Command="{Binding BackCommand}" />
+                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="0">
+                    <Label Text="Renk Bingosu" Style="{StaticResource LargeTitle}" />
+                    <Label Text="{Binding SummaryText}" Style="{StaticResource Caption}" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- loading -->
+            <VerticalStackLayout Spacing="12" IsVisible="{Binding ShowSkeleton}">
+                <controls:SkeletonView HeightRequest="40" Radius="14" />
+                <controls:SkeletonView HeightRequest="330" Radius="22" />
+                <controls:SkeletonView HeightRequest="200" Radius="22" />
+            </VerticalStackLayout>
+
+            <!-- error -->
+            <VerticalStackLayout Spacing="10" IsVisible="{Binding HasError}">
+                <Label Text="{Binding ErrorMessage}" Style="{StaticResource ErrorText}" />
+                <controls:AppButton Text="Tekrar dene" Kind="secondary" Command="{Binding LoadCommand}" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="18" IsVisible="{Binding Loaded}" controls:Reveal.Stagger="True">
+
+                <VerticalStackLayout Spacing="4">
+                    <HorizontalStackLayout Spacing="7">
+                        <controls:IconView Kind="award" Size="15" StrokeWidth="2.2" VerticalOptions="Center"
+                                           Tint="{AppThemeBinding Light={StaticResource WarningLight}, Dark={StaticResource WarningDark}}" />
+                        <Label Text="{Binding RewardText}" FontFamily="SansSemibold" FontSize="13" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Label Text="{Binding BoardsText}" Style="{StaticResource Caption}" IsVisible="{Binding BoardsText, Converter={StaticResource NotEmpty}}" />
+                </VerticalStackLayout>
+
+                <!-- the 3×3 board -->
+                <FlexLayout HeightRequest="{Binding GridHeight}" Wrap="Wrap" JustifyContent="Start" AlignItems="Start" AlignContent="Start" Margin="0,0,-8,0"
+                            BindableLayout.ItemsSource="{Binding Tiles}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,0,8,8" controls:Interact.TapFeedback="True"
+                                  WidthRequest="{Binding TileSize, Source={RelativeSource AncestorType={x:Type vm:BingoViewModel}}}"
+                                  HeightRequest="{Binding TileSize, Source={RelativeSource AncestorType={x:Type vm:BingoViewModel}}}"
+                                  SemanticProperties.Description="{Binding Description}">
+                                <Border StrokeThickness="0" StrokeShape="RoundRectangle 22" BackgroundColor="{Binding Hex, Converter={StaticResource HexToColor}}" />
+                                <Label Text="{Binding Name}" FontFamily="SansBold" FontSize="14" HorizontalTextAlignment="Center" VerticalOptions="End" Margin="6,0,6,10"
+                                       LineBreakMode="WordWrap" MaxLines="2" TextColor="{Binding Hex, Converter={StaticResource HexToInk}}" />
+                                <!-- done: the colour dims and a check sits on it -->
+                                <Border StrokeThickness="0" StrokeShape="RoundRectangle 22" BackgroundColor="#8C000000" IsVisible="{Binding Completed}" />
+                                <Border WidthRequest="40" HeightRequest="40" StrokeThickness="0" StrokeShape="RoundRectangle 20" BackgroundColor="#F2FFFFFF"
+                                        HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding Completed}">
+                                    <controls:IconView Kind="check" Size="22" StrokeWidth="2.8" Tint="#1B7F5A" HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding TapTileCommand, Source={RelativeSource AncestorType={x:Type vm:BingoViewModel}}}" CommandParameter="{Binding .}" />
+                                </Grid.GestureRecognizers>
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </FlexLayout>
+
+                <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 18" Padding="14,12">
+                    <Label Text="{Binding DetailText}" Style="{StaticResource Caption}" />
+                </Border>
+
+                <!-- the eight lines -->
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Çizgiler" Style="{StaticResource Headline}" Margin="0,0,0,6" />
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Lines}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" MinimumHeightRequest="44" Padding="0,6">
+                                    <Grid WidthRequest="26" HeightRequest="26" VerticalOptions="Center">
+                                        <Border StrokeThickness="1.75" StrokeShape="RoundRectangle 13" BackgroundColor="Transparent"
+                                                Stroke="{AppThemeBinding Light=#D2C9BB, Dark=#4B443C}" IsVisible="{Binding Done, Converter={StaticResource Not}}" />
+                                        <Border StrokeThickness="0" StrokeShape="RoundRectangle 13" BackgroundColor="#0FA47F" IsVisible="{Binding Done}">
+                                            <controls:IconView Kind="check" Size="15" StrokeWidth="2.6" Tint="White" HorizontalOptions="Center" VerticalOptions="Center" />
+                                        </Border>
+                                    </Grid>
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="0">
+                                        <Label Text="{Binding Name}" FontFamily="SansSemibold" FontSize="15" />
+                                        <Label Text="{Binding ProgressText}" Style="{StaticResource Caption}" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2" Text="{Binding XpText}" FontFamily="SansSemibold" FontSize="13" VerticalOptions="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <Label Text="Bir kare, o renge en az 700 puan veren ilk fotoğrafla tamamlanır. Aynı fotoğraf iki kareyi doldurmaz; her karede 10 deneme hakkın var."
+                       Style="{StaticResource Caption}" />
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

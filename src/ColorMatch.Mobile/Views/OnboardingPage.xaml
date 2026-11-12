@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
+             x:Class="ColorMatch.Mobile.Views.OnboardingPage"
+             NavigationPage.HasNavigationBar="False">
+    <Grid RowDefinitions="Auto,*,Auto,Auto" Padding="24,12,24,24" RowSpacing="16">
+        <Grid ColumnDefinitions="Auto,*,Auto">
+            <Image Source="logo_tile" WidthRequest="40" HeightRequest="40" SemanticProperties.Description="ColorMatch logosu" />
+            <controls:AppButton Grid.Column="2" Text="Atla" Kind="ghost" Command="{Binding SkipCommand}" />
+        </Grid>
+
+        <CarouselView Grid.Row="1" ItemsSource="{Binding Slides}" Position="{Binding Position}" Loop="False" IndicatorView="dots">
+            <CarouselView.ItemTemplate>
+                <DataTemplate>
+                    <VerticalStackLayout Spacing="22" VerticalOptions="Center">
+                        <!-- a flat field of the slide's colour: the app teaches by showing colour first -->
+                        <Border HeightRequest="300" StrokeThickness="0" StrokeShape="RoundRectangle 28" Padding="22"
+                                BackgroundColor="{Binding Hex, Converter={StaticResource HexToColor}}">
+                            <Grid RowDefinitions="Auto,*,Auto">
+                                <Label Text="Hedef renk" Style="{StaticResource Overline}" Opacity="0.75" TextColor="{Binding Hex, Converter={StaticResource HexToInk}}" />
+                                <Label Grid.Row="2" Text="{Binding Hex}" Style="{StaticResource Display}" FontSize="34" CharacterSpacing="1" TextColor="{Binding Hex, Converter={StaticResource HexToInk}}" />
+                            </Grid>
+                        </Border>
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="{Binding Title}" Style="{StaticResource LargeTitle}" />
+                            <Label Text="{Binding Text}" Style="{StaticResource Muted}" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </CarouselView.ItemTemplate>
+        </CarouselView>
+
+        <IndicatorView Grid.Row="2" x:Name="dots" HorizontalOptions="Start" IndicatorSize="7" IndicatorColor="{AppThemeBinding Light={StaticResource OutlineLight}, Dark={StaticResource OutlineDark}}"
+                       SelectedIndicatorColor="{AppThemeBinding Light={StaticResource AccentLight}, Dark={StaticResource AccentDark}}" />
+        <controls:AppButton Grid.Row="3" Text="{Binding NextText}" Kind="primary" Command="{Binding NextCommand}" />
+    </Grid>
+</ContentPage>

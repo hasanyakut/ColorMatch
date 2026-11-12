@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.14" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="SkiaSharp" Version="4.155.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- the mobile app's API models are plain C# records: compiling them here lets the contract tests check them against the real server responses -->
+    <Compile Include="..\..\src\ColorMatch.Mobile\Models\*.cs" LinkBase="MobileModels" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ColorMatch.ColorEngine\ColorMatch.ColorEngine.csproj" />
+    <ProjectReference Include="..\..\src\ColorMatch.Application\ColorMatch.Application.csproj" />
+    <ProjectReference Include="..\..\src\ColorMatch.Domain\ColorMatch.Domain.csproj" />
+    <ProjectReference Include="..\..\src\ColorMatch.Infrastructure\ColorMatch.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\ColorMatch.API\ColorMatch.API.csproj" />
+  </ItemGroup>
+
+</Project>

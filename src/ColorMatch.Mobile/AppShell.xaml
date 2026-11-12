@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:views="clr-namespace:ColorMatch.Mobile.Views"
+       x:Class="ColorMatch.Mobile.AppShell"
+       FlyoutBehavior="Disabled"
+       Shell.NavBarIsVisible="False"
+       Shell.TabBarIsVisible="False">
+
+    <TabBar>
+        <ShellContent Title="Ana sayfa" Icon="tab_home.png" Route="home" ContentTemplate="{DataTemplate views:HomePage}" />
+        <ShellContent Title="Görevler" Icon="tab_hunt.png" Route="challenges" ContentTemplate="{DataTemplate views:ChallengesPage}" />
+        <ShellContent Title="Av" Icon="tab_hunt.png" Route="hunt" ContentTemplate="{DataTemplate views:HuntPage}" />
+        <ShellContent Title="Atlas" Icon="tab_create.png" Route="atlas" ContentTemplate="{DataTemplate views:AtlasPage}" />
+        <ShellContent Title="Oluştur" Icon="tab_create.png" Route="create" ContentTemplate="{DataTemplate views:CreatePage}" />
+        <ShellContent Title="Akış" Icon="tab_feed.png" Route="feed" ContentTemplate="{DataTemplate views:FeedPage}" />
+        <ShellContent Title="Profil" Icon="tab_profile.png" Route="me" ContentTemplate="{DataTemplate views:ProfilePage}" />
+    </TabBar>
+</Shell>

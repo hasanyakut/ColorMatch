@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:ColorMatch.Mobile.Controls"
+             xmlns:vm="clr-namespace:ColorMatch.Mobile.ViewModels"
+             x:Class="ColorMatch.Mobile.Views.ProfilePage"
+             SizeChanged="OnPageSizeChanged">
+    <ContentPage.Resources>
+        <!-- gallery filter chip -->
+        <Style x:Key="FilterChip" TargetType="Border">
+            <Setter Property="controls:Interact.TapFeedback" Value="True" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+            <Setter Property="StrokeThickness" Value="0" />
+            <Setter Property="Padding" Value="14,0" />
+            <Setter Property="MinimumHeightRequest" Value="40" />
+            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SurfaceAltLight}, Dark={StaticResource SurfaceAltDark}}" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="*,Auto">
+        <Grid>
+            <RefreshView IsRefreshing="{Binding IsRefreshing, Mode=TwoWay}" Command="{Binding LoadCommand}">
+                <CollectionView ItemsSource="{Binding Visible}" SelectionMode="None" IsVisible="{Binding Loaded}" Margin="16,0"
+                                RemainingItemsThreshold="3" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
+                    <CollectionView.ItemsLayout>
+                        <GridItemsLayout Orientation="Vertical" Span="3" HorizontalItemSpacing="4" VerticalItemSpacing="4" />
+                    </CollectionView.ItemsLayout>
+
+                    <CollectionView.Header>
+                        <VerticalStackLayout Padding="4,4,4,12" Spacing="22">
+
+                            <!-- top bar -->
+                            <Grid ColumnDefinitions="Auto,*,Auto" MinimumHeightRequest="44">
+                                <controls:IconButton Kind="arrow-left" Tone="soft" Label="Geri" Command="{Binding BackCommand}" IsVisible="{Binding CanGoBack}" />
+                                <controls:IconButton Grid.Column="2" Kind="more" Tone="plain" Label="Ayarlar" Command="{Binding OpenSettingsCommand}" IsVisible="{Binding IsOwn}" />
+                            </Grid>
+
+                            <!-- identity: compact, with the person's colour signature -->
+                            <VerticalStackLayout Spacing="14">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                                    <Grid VerticalOptions="Start">
+                                        <controls:AvatarView SourceUrl="{Binding AvatarUrl}" Name="{Binding Profile.UserName}" Size="76" />
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding ChangeAvatarCommand}" />
+                                        </Grid.GestureRecognizers>
+                                    </Grid>
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="5">
+                                        <Label Text="{Binding Profile.UserName}" Style="{StaticResource LargeTitle}" FontSize="26" LineBreakMode="TailTruncation" />
+                                        <Label Text="{Binding JoinedText}" Style="{StaticResource Caption}" />
+                                        <Label Text="Fotoğrafı değiştirmek için dokun" Style="{StaticResource Caption}" FontSize="11" IsVisible="{Binding IsOwn}" />
+                                    </VerticalStackLayout>
+                                </Grid>
+
+                                <!-- colour signature: the colours of everything they shared -->
+                                <VerticalStackLayout Spacing="6" IsVisible="{Binding HasSignature}" SemanticProperties.Description="Paylaşılan gönderilerin renkleri">
+                                    <Label Text="Renk imzası" Style="{StaticResource Overline}" FontSize="10" />
+                                    <HorizontalStackLayout Spacing="4" BindableLayout.ItemsSource="{Binding Signature}">
+                                        <BindableLayout.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border WidthRequest="32" HeightRequest="8" StrokeShape="RoundRectangle 4" StrokeThickness="0"
+                                                        BackgroundColor="{Binding ., Converter={StaticResource HexToColor}}" />
+                                            </DataTemplate>
+                                        </BindableLayout.ItemTemplate>
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+
+                                <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="10" IsVisible="{Binding ShowFriendButton}">
+                                    <controls:AppButton Text="{Binding FriendButtonText}" Kind="primary" Compact="True" Command="{Binding FriendPrimaryCommand}" IsEnabled="{Binding FriendButtonEnabled}" />
+                                    <controls:AppButton Grid.Column="1" Text="{Binding FriendSecondaryText}" Kind="ghost" Command="{Binding FriendSecondaryCommand}" IsVisible="{Binding ShowFriendSecondary}" />
+                                </Grid>
+                            </VerticalStackLayout>
+
+                            <!-- numbers as type -->
+                            <Grid ColumnDefinitions="*,*,*,*">
+                                <VerticalStackLayout Spacing="1"><Label Text="{Binding TotalXpText}" Style="{StaticResource Figure}" FontSize="22" /><Label Text="Toplam XP" Style="{StaticResource Caption}" /></VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1" Spacing="1"><Label Text="{Binding PostCountText}" Style="{StaticResource Figure}" FontSize="22" /><Label Text="Gönderi" Style="{StaticResource Caption}" /></VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="2" Spacing="1"><Label Text="{Binding BestText}" Style="{StaticResource Figure}" FontSize="22" /><Label Text="En iyi skor" Style="{StaticResource Caption}" /></VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="3" Spacing="1"><Label Text="{Binding StreakText}" Style="{StaticResource Figure}" FontSize="22" /><Label Text="Seri" Style="{StaticResource Caption}" /></VerticalStackLayout>
+                            </Grid>
+
+                            <controls:XpProgress Level="{Binding LevelNumber}" Caption="{Binding LevelText}" XpText="{Binding XpText}" Progress="{Binding XpProgress}" />
+
+                            <!-- achievements -->
+                            <VerticalStackLayout Spacing="12">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Text="Başarımlar" Style="{StaticResource Headline}" />
+                                    <Label Grid.Column="1" Text="{Binding BadgesText}" Style="{StaticResource Caption}" VerticalOptions="Center" />
+                                </Grid>
+                                <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never" Margin="-4,0">
+                                    <HorizontalStackLayout Spacing="6" BindableLayout.ItemsSource="{Binding Badges}">
+                                        <BindableLayout.ItemTemplate>
+                                            <DataTemplate>
+                                                <controls:AchievementBadge Icon="{Binding Icon}" Title="{Binding Title}" Hint="{Binding Hint}" IsUnlocked="{Binding Unlocked}" />
+                                            </DataTemplate>
+                                        </BindableLayout.ItemTemplate>
+                                    </HorizontalStackLayout>
+                                </ScrollView>
+                            </VerticalStackLayout>
+
+                            <Label Text="{Binding InfoMessage}" Style="{StaticResource ErrorText}" IsVisible="{Binding InfoMessage, Converter={StaticResource NotEmpty}}" />
+
+                            <!-- gallery filter -->
+                            <HorizontalStackLayout Spacing="8">
+                                <Border Style="{StaticResource FilterChip}" SemanticProperties.Description="Tüm gönderiler">
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding IsAllFilter}" Value="True">
+                                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource InkLight}, Dark={StaticResource InkDark}}" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                        <Label Text="Tümü" FontFamily="SansSemibold" FontSize="13" VerticalOptions="Center">
+                                            <Label.Triggers><DataTrigger TargetType="Label" Binding="{Binding IsAllFilter}" Value="True"><Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnInkLight}, Dark={StaticResource OnInkDark}}" /></DataTrigger></Label.Triggers>
+                                        </Label>
+                                        <Label Text="{Binding AllCountText}" FontSize="12" Opacity="0.7" VerticalOptions="Center">
+                                            <Label.Triggers><DataTrigger TargetType="Label" Binding="{Binding IsAllFilter}" Value="True"><Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnInkLight}, Dark={StaticResource OnInkDark}}" /></DataTrigger></Label.Triggers>
+                                        </Label>
+                                    </HorizontalStackLayout>
+                                    <Border.GestureRecognizers><TapGestureRecognizer Command="{Binding SetFilterCommand}" CommandParameter="all" /></Border.GestureRecognizers>
+                                </Border>
+                                <Border Style="{StaticResource FilterChip}" SemanticProperties.Description="Fotoğraflar">
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding IsPhotoFilter}" Value="True">
+                                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource InkLight}, Dark={StaticResource InkDark}}" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                        <Label Text="Fotoğraflar" FontFamily="SansSemibold" FontSize="13" VerticalOptions="Center">
+                                            <Label.Triggers><DataTrigger TargetType="Label" Binding="{Binding IsPhotoFilter}" Value="True"><Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnInkLight}, Dark={StaticResource OnInkDark}}" /></DataTrigger></Label.Triggers>
+                                        </Label>
+                                        <Label Text="{Binding PhotoCountText}" FontSize="12" Opacity="0.7" VerticalOptions="Center">
+                                            <Label.Triggers><DataTrigger TargetType="Label" Binding="{Binding IsPhotoFilter}" Value="True"><Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnInkLight}, Dark={StaticResource OnInkDark}}" /></DataTrigger></Label.Triggers>
+                                        </Label>
+                                    </HorizontalStackLayout>
+                                    <Border.GestureRecognizers><TapGestureRecognizer Command="{Binding SetFilterCommand}" CommandParameter="photo" /></Border.GestureRecognizers>
+                                </Border>
+                                <Border Style="{StaticResource FilterChip}" SemanticProperties.Description="Kolajlar">
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding IsCollageFilter}" Value="True">
+                                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource InkLight}, Dark={StaticResource InkDark}}" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                        <Label Text="Kolajlar" FontFamily="SansSemibold" FontSize="13" VerticalOptions="Center">
+                                            <Label.Triggers><DataTrigger TargetType="Label" Binding="{Binding IsCollageFilter}" Value="True"><Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnInkLight}, Dark={StaticResource OnInkDark}}" /></DataTrigger></Label.Triggers>
+                                        </Label>
+                                        <Label Text="{Binding CollageCountText}" FontSize="12" Opacity="0.7" VerticalOptions="Center">
+                                            <Label.Triggers><DataTrigger TargetType="Label" Binding="{Binding IsCollageFilter}" Value="True"><Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnInkLight}, Dark={StaticResource OnInkDark}}" /></DataTrigger></Label.Triggers>
+                                        </Label>
+                                    </HorizontalStackLayout>
+                                    <Border.GestureRecognizers><TapGestureRecognizer Command="{Binding SetFilterCommand}" CommandParameter="collage" /></Border.GestureRecognizers>
+                                </Border>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </CollectionView.Header>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <controls:PhotoCard HeightRequest="{Binding TileHeight, Source={RelativeSource AncestorType={x:Type vm:ProfileViewModel}}}"
+                                                Radius="10" ShowChip="False" ImageUrl="{Binding ImageUrl}" Hex="{Binding ColorHex}" IsCollage="{Binding IsCollage}" Margin="0">
+                                <controls:PhotoCard.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OpenPostCommand, Source={RelativeSource AncestorType={x:Type vm:ProfileViewModel}}}" CommandParameter="{Binding .}" />
+                                </controls:PhotoCard.GestureRecognizers>
+                            </controls:PhotoCard>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+
+                    <!-- empty states live in the footer so the header stays visible above them -->
+                    <CollectionView.Footer>
+                        <VerticalStackLayout>
+                            <VerticalStackLayout Spacing="10" Padding="24,28" IsVisible="{Binding NoPosts}" HorizontalOptions="Center">
+                                <Border WidthRequest="56" HeightRequest="56" StrokeShape="RoundRectangle 16" StrokeThickness="0" HorizontalOptions="Center"
+                                        BackgroundColor="{AppThemeBinding Light={StaticResource AccentSoftLight}, Dark={StaticResource AccentSoftDark}}">
+                                    <controls:IconView Kind="image" Size="26" Accent="True" HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <Label Text="Henüz paylaşım yok" Style="{StaticResource Headline}" HorizontalTextAlignment="Center" />
+                                <Label Text="Bir renk avı fotoğrafı ya da kolaj paylaşınca burada görünür." Style="{StaticResource Muted}" HorizontalTextAlignment="Center" />
+                                <controls:AppButton Text="Kolaj oluştur" Kind="primary" Command="{Binding OpenCreateCommand}" IsVisible="{Binding IsOwn}" HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                            <Label Text="Bu filtrede gönderi yok." Style="{StaticResource Muted}" HorizontalTextAlignment="Center" Padding="0,24" IsVisible="{Binding NoVisible}" />
+                            <BoxView HeightRequest="112" Color="Transparent" />
+                        </VerticalStackLayout>
+                    </CollectionView.Footer>
+                </CollectionView>
+            </RefreshView>
+
+            <!-- first load: placeholder silhouette (avatar, stats, 3-column grid) instead of a spinner -->
+            <Grid IsVisible="{Binding ShowSkeleton}" InputTransparent="True" BackgroundColor="{AppThemeBinding Light={StaticResource BgLight}, Dark={StaticResource BgDark}}">
+                <controls:PulseHost IsVisible="{Binding ShowSkeleton}">
+                    <VerticalStackLayout Padding="20,64,20,0" Spacing="22">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                            <controls:SkeletonView WidthRequest="76" HeightRequest="76" Radius="38" />
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="10">
+                                <controls:SkeletonView WidthRequest="150" HeightRequest="24" Radius="8" HorizontalOptions="Start" />
+                                <controls:SkeletonView WidthRequest="100" HeightRequest="12" Radius="6" HorizontalOptions="Start" />
+                            </VerticalStackLayout>
+                        </Grid>
+                        <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="12">
+                            <controls:SkeletonView HeightRequest="40" Radius="8" />
+                            <controls:SkeletonView Grid.Column="1" HeightRequest="40" Radius="8" />
+                            <controls:SkeletonView Grid.Column="2" HeightRequest="40" Radius="8" />
+                            <controls:SkeletonView Grid.Column="3" HeightRequest="40" Radius="8" />
+                        </Grid>
+                        <controls:SkeletonView HeightRequest="52" Radius="16" />
+                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="130,130" ColumnSpacing="4" RowSpacing="4" Margin="0,12,0,0">
+                            <controls:SkeletonView Radius="10" />
+                            <controls:SkeletonView Grid.Column="1" Radius="10" />
+                            <controls:SkeletonView Grid.Column="2" Radius="10" />
+                            <controls:SkeletonView Grid.Row="1" Radius="10" />
+                            <controls:SkeletonView Grid.Row="1" Grid.Column="1" Radius="10" />
+                            <controls:SkeletonView Grid.Row="1" Grid.Column="2" Radius="10" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </controls:PulseHost>
+            </Grid>
+
+            <controls:StateView ErrorMessage="{Binding ErrorMessage}" RetryCommand="{Binding LoadCommand}" />
+        </Grid>
+
+        <controls:BottomBar Grid.RowSpan="2" VerticalOptions="End" ActiveTab="me" IsVisible="{Binding CanGoBack, Converter={StaticResource Not}}" />
+    </Grid>
+</ContentPage>
