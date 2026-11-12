@@ -313,7 +313,7 @@ public partial class HuntViewModel(IGameService game, IApiClient api, ImageServi
         SelX = region.X; SelY = region.Y; SelRadius = region.Radius;
         PreviewHex = preview?.Found.ToHex();
         PreviewScore = preview?.Score ?? 0;
-        HintText = preview is null ? "" : ColorHints.Describe(Hunt.Hex, PreviewHex, PreviewScore);
+        HintText = preview is null ? "" : ColorHints.Describe(Hunt.Hex, PreviewHex, PreviewScore, preview.Share);
     }
 
     [RelayCommand]
@@ -438,14 +438,14 @@ public partial class ResultViewModel(IPostPublisher publisher) : BaseViewModel, 
     public bool IsHighScore => Result?.Tier is "Perfect" or "Excellent";
     public string StatusText => Result is null ? "" : Result.Duel is { } du ? (du.DuelResolved ? du.Duel.Outcome switch { "win" => "Düelloyu kazandın!", "lose" => "Düelloyu kaybettin", "draw" => "Berabere", _ => "Düello bitti" } : $"{du.AttemptsLeft} deneme hakkın kaldı") : Result.FirstCompletion && Result.Bingo is not null ? "Kare tamamlandı" : Result.Bingo is not null && Result.Passed ? "Bu kare zaten tamamlanmıştı" : Result.FirstCompletion ? "Av tamamlandı" : Result.Passed ? "Bu av zaten tamamlanmıştı" : $"Tamamlamak için {Result.MinScore}+ gerekli";
     /// <summary>Advice for the next try, from the difference between target and found colour.</summary>
-    public string HintText => Result is null ? "" : ColorHints.Describe(Result.TargetHex, Result.FoundHex, Result.Score);
+    public string HintText => Result is null ? "" : ColorHints.Describe(Result.TargetHex, Result.FoundHex, Result.Score, Result.Region?.Share ?? 1);
     public bool HasHint => HintText.Length > 0;
     public string StatusIcon => Result is { Passed: true } ? "check" : "target";
     public bool StatusIsGood => Result?.Passed == true;
     public string DailyText => Result is null ? "" : Result.Duel is { } du ? (du.DuelResolved ? $"Sen {du.Duel.MyBest} · rakip {du.Duel.OtherBest}" : "Rakibin skoru düello bitene kadar gizli") : Result.Bingo is { } b ? $"Bingo: {b.CompletedCells} / 9 kare · {b.CompletedLines} / 8 çizgi" : $"Günlük av: {Result.CompletedCount} / 3 tamamlandı";
     public string LevelUpText => Result is { LeveledUp: true } r ? $"Seviye atladın: {r.Level}" + (r.TitleChanged ? $" · yeni unvan: {r.Title}" : "") : "";
     public bool LeveledUp => Result?.LeveledUp == true;
-    public string Detail => Result is null ? "" : $"Renk farkı ΔE00 {Result.DeltaE.ToString("0.0", new System.Globalization.CultureInfo("tr-TR"))} · Bu av için en iyin {Result.BestScore}";
+    public string Detail => Result is null ? "" : $"Renk farkı ΔE00 {Result.DeltaE.ToString("0.0", new System.Globalization.CultureInfo("tr-TR"))} · Görselin %{Math.Round((Result.Region?.Share ?? 1) * 100)}'i bu renk · En iyin {Result.BestScore}";
 
     // where on the photo the colour was sampled (normalised), so the result can show it
     [ObservableProperty] private double regionX = 0.5;

@@ -61,8 +61,8 @@ public sealed record HuntAttemptResultDto(
     string PhotoUrl,
     RegionDto? Region = null);
 
-/// <summary>Where on the photo the server measured the colour (centre as a fraction of width / height, radius as a fraction of the shorter side). Chosen by the server, never by the client.</summary>
-public sealed record RegionDto(double X, double Y, double Radius);
+/// <summary>Where on the photo the server measured the colour (centre as a fraction of width / height, radius as a fraction of the shorter side). Chosen by the server, never by the client. <c>Share</c> is the part (0..1) of the whole picture that has this colour; the score is weighted by it.</summary>
+public sealed record RegionDto(double X, double Y, double Radius, double Share = 1);
 
 public sealed record HuntAttemptSummaryDto(Guid Id, string FoundHex, int Score, int XpAwarded, string PhotoKey, string PhotoUrl, DateTime CreatedAtUtc);
 

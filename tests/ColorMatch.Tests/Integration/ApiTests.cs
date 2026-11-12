@@ -149,25 +149,34 @@ public class ColorHuntTests(ApiFactory factory)
     }
 
     [Fact]
-    public async Task A_small_patch_of_the_target_colour_in_a_busy_photo_is_found_and_reported()
+    public async Task A_small_patch_is_found_but_scores_low_while_a_big_one_scores_high()
     {
         var (client, _) = await factory.RegisterAsync();
         var today = (await client.GetFromJsonAsync<DailyChallengeDto>("/api/challenges/today"))!;
         var t = ColorMatch.ColorEngine.ColorConversion.Rgb.FromHex(today.Hex);
 
-        // neutral grey photo with a 40×40 patch of the target low on the right (centre ≈ 0.75, 0.70)
-        using var bmp = new SkiaSharp.SKBitmap(200, 200);
-        for (var y = 0; y < 200; y++)
-            for (var x = 0; x < 200; x++)
-                bmp.SetPixel(x, y, x is >= 130 and < 170 && y is >= 120 and < 160 ? new SkiaSharp.SKColor(t.R, t.G, t.B) : new SkiaSharp.SKColor(128, 128, 128));
-        using var img = SkiaSharp.SKImage.FromBitmap(bmp);
-        var jpeg = img.Encode(SkiaSharp.SKEncodedImageFormat.Jpeg, 95).ToArray();
+        // neutral grey photo with a square patch of the target low on the right; side in pixels of a 200×200 photo
+        async Task<HuntAttemptResultDto> Patch(int side)
+        {
+            using var bmp = new SkiaSharp.SKBitmap(200, 200);
+            var x0 = 160 - side / 2; var y0 = 140 - side / 2;
+            for (var y = 0; y < 200; y++)
+                for (var x = 0; x < 200; x++)
+                    bmp.SetPixel(x, y, x >= x0 && x < x0 + side && y >= y0 && y < y0 + side ? new SkiaSharp.SKColor(t.R, t.G, t.B) : new SkiaSharp.SKColor(128, 128, 128));
+            using var img = SkiaSharp.SKImage.FromBitmap(bmp);
+            var resp = await client.PostAsync("/api/color-hunts", ApiFactory.HuntForm(img.Encode(SkiaSharp.SKEncodedImageFormat.Jpeg, 95).ToArray(), 0.1, 0.1, 0.02));
+            return (await resp.Content.ReadFromJsonAsync<HuntAttemptResultDto>())!;
+        }
 
-        var resp = await client.PostAsync("/api/color-hunts", ApiFactory.HuntForm(jpeg, 0.1, 0.1, 0.02));
-        var r = (await resp.Content.ReadFromJsonAsync<HuntAttemptResultDto>())!;
-        Assert.True(r.Score > 900, $"score {r.Score}");
-        Assert.InRange(r.Region!.X, 0.65, 0.85);
-        Assert.InRange(r.Region.Y, 0.60, 0.80);
+        var small = await Patch(40);    // 4 % of the picture
+        Assert.InRange(small.Region!.X, 0.65, 0.95);   // still found where it is
+        Assert.InRange(small.Region.Y, 0.55, 0.85);
+        Assert.InRange(small.Region.Share, 0.02, 0.07);
+        Assert.True(small.Score < 500, $"a 4 % patch must not pass, score {small.Score}");
+
+        var big = await Patch(120);     // about 30 % of the picture
+        Assert.InRange(big.Region!.Share, 0.25, 0.42);   // the patch is cut by the photo edge: about 30 %
+        Assert.True(big.Score > 900, $"a colour that fills a good part of the picture earns the full score, score {big.Score}");
     }
 
     [Fact]

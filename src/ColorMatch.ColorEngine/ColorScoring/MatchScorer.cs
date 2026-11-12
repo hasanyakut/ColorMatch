@@ -3,7 +3,7 @@ using ColorMatch.ColorEngine.ColorConversion;
 namespace ColorMatch.ColorEngine.ColorScoring;
 
 /// <summary>Result of comparing a target colour with a sampled colour.</summary>
-public sealed record MatchResult(Rgb Target, Rgb Found, double DeltaE, int Score);
+public sealed record MatchResult(Rgb Target, Rgb Found, double DeltaE, int Score, double ColorShare = 1.0);
 
 /// <summary>
 /// Converts a CIEDE2000 distance into a 0–1000 score.
@@ -26,9 +26,18 @@ public static class MatchScorer
         return Math.Clamp((int)Math.Round(score, MidpointRounding.AwayFromZero), 0, MaxScore);
     }
 
-    public static MatchResult Compare(Rgb target, Rgb found)
+    /// <summary>Colour-only score: the colours are compared as if the colour filled the whole picture.</summary>
+    public static MatchResult Compare(Rgb target, Rgb found) => Compare(target, found, 1.0);
+
+    /// <summary>
+    /// The score of a photo: the colour score multiplied by <see cref="ColorWeight.Factor"/> of the share of the picture that has this colour.
+    /// ΔE stays the plain colour difference.
+    /// </summary>
+    public static MatchResult Compare(Rgb target, Rgb found, double colorShare)
     {
         var de = Ciede2000.Difference(target, found);
-        return new MatchResult(target, found, de, ScoreFromDeltaE(de));
+        var share = Math.Clamp(double.IsNaN(colorShare) ? 0 : colorShare, 0, 1);
+        var score = (int)Math.Round(ScoreFromDeltaE(de) * ColorWeight.Factor(share), MidpointRounding.AwayFromZero);
+        return new MatchResult(target, found, de, Math.Clamp(score, 0, MaxScore), share);
     }
 }

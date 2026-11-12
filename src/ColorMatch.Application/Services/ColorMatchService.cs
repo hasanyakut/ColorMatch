@@ -13,13 +13,13 @@ namespace ColorMatch.Application.Services;
 /// </summary>
 public sealed record ColorMatchOutcome(NormalizedImage Image, Rgb Found, double DeltaE, int Score, FoundRegion Region)
 {
-    public RegionDto RegionDto => new(Math.Round(Region.X, 4), Math.Round(Region.Y, 4), Math.Round(Region.Radius, 4));
+    public RegionDto RegionDto => new(Math.Round(Region.X, 4), Math.Round(Region.Y, 4), Math.Round(Region.Radius, 4), Math.Round(Region.ColorShare, 3));
 }
 
 /// <summary>
 /// The one place where a photo becomes a score: normalise the photo → find the region that best matches the target
 /// (<see cref="RegionFinder"/>, decided entirely on the server) → robust representative colour of that region at full resolution →
-/// CIEDE2000 against the target → 0–1000. Every game mode uses it, so no mode can drift into its own similarity rule.
+/// CIEDE2000 against the target → 0–1000, multiplied by how much of the picture is that colour (<see cref="ColorWeight"/>). Every game mode uses it, so no mode can drift into its own similarity rule.
 /// The client supplies neither a score, a colour nor a region.
 /// </summary>
 public interface IColorMatchService
@@ -45,7 +45,7 @@ public sealed class ColorMatchService(IImageProcessor images) : IColorMatchServi
             throw new ValidationAppException("file", "The photo is too small to analyse. Take a larger photo.");
 
         var analysis = RegionColorAnalyzer.Analyze(pixels);
-        var match = MatchScorer.Compare(target, analysis.Color);
+        var match = MatchScorer.Compare(target, analysis.Color, region.ColorShare);
         return new ColorMatchOutcome(image, analysis.Color, match.DeltaE, match.Score, region);
     }
 }

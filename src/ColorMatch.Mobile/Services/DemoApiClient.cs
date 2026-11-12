@@ -115,7 +115,7 @@ public sealed class DemoApiClient : IApiClient
     }
 
     // ---- game: three hunts per day, same rules as the server (first valid completion pays once, bonus for all three) ----
-    private const int MinScore = 700, BonusXp = 150;
+    private const int MinScore = 500, BonusXp = 150;
 
     private static readonly (string Name, string Hex)[] EasyColors =
         [("Kırmızı", "#D7263D"), ("Mavi", "#1E6FD9"), ("Yeşil", "#2E9E4F"), ("Sarı", "#FFD23F"), ("Turuncu", "#F57C00"), ("Mor", "#7B3FB5")];
@@ -208,8 +208,8 @@ public sealed class DemoApiClient : IApiClient
     {
         if (cellIndex < 0 || cellIndex > 8) throw new ApiException("Kare bulunamadı.", System.Net.HttpStatusCode.NotFound);
         var color = BingoColors[cellIndex];
-        var (target, found) = await AnalyzeAsync(photoPath, x, y, radius, color.Hex, ct);
-        var match = MatchScorer.Compare(target, found);
+        var (target, found, share) = await AnalyzeAsync(photoPath, x, y, radius, color.Hex, ct);
+        var match = MatchScorer.Compare(target, found, share);
         lock (_gate)
         {
             var s = _bingo[cellIndex];
@@ -298,8 +298,8 @@ public sealed class DemoApiClient : IApiClient
         DemoDuel d;
         lock (_gate) d = _duels.FirstOrDefault(v => v.Id == id) ?? throw new ApiException("Düello bulunamadı.", System.Net.HttpStatusCode.NotFound);
         if (d.Status != "Active" || d.Done) throw new ApiException("Bu düello bitti.", System.Net.HttpStatusCode.Conflict);
-        var (target, found) = await AnalyzeAsync(photoPath, x, y, radius, d.Hex, ct);
-        var match = MatchScorer.Compare(target, found);
+        var (target, found, share) = await AnalyzeAsync(photoPath, x, y, radius, d.Hex, ct);
+        var match = MatchScorer.Compare(target, found, share);
         lock (_gate)
         {
             var previous = d.Scores.Count > 0 ? d.Scores.Max() : 0;
@@ -369,7 +369,7 @@ public sealed class DemoApiClient : IApiClient
         return Task.FromResult(list);
     }
 
-    private static Task<(Rgb Target, Rgb Found)> AnalyzeAsync(string photoPath, double x, double y, double radius, string targetHex, CancellationToken ct)
+    private static Task<(Rgb Target, Rgb Found, double Share)> AnalyzeAsync(string photoPath, double x, double y, double radius, string targetHex, CancellationToken ct)
         => Task.Run(() =>
         {
             // like the server: the region is found automatically, whatever the caller points at
@@ -378,7 +378,7 @@ public sealed class DemoApiClient : IApiClient
             var region = sampler.FindBest(target);
             var pixels = sampler.SampleCircle(region.X, region.Y, region.Radius);
             if (pixels.Count < 9) throw new ApiException("Fotoğraf analiz için çok küçük. Daha büyük bir fotoğraf çek.");
-            return (target, RegionColorAnalyzer.Analyze(pixels).Color);
+            return (target, RegionColorAnalyzer.Analyze(pixels).Color, region.ColorShare);
         }, ct);
 
     public async Task<DailyHuntResult> SubmitDailyHuntAttemptAsync(int huntId, string photoPath, double x, double y, double radius, CancellationToken ct = default)
@@ -386,9 +386,9 @@ public sealed class DemoApiClient : IApiClient
         var hunt = TodayHunts().FirstOrDefault(t => t.Id == huntId);
         if (hunt.Id == 0) throw new ApiException("Av bulunamadı.", System.Net.HttpStatusCode.NotFound);
 
-        var (target, found) = await AnalyzeAsync(photoPath, x, y, radius, hunt.Hex, ct);
+        var (target, found, share) = await AnalyzeAsync(photoPath, x, y, radius, hunt.Hex, ct);
 
-        var match = MatchScorer.Compare(target, found);
+        var match = MatchScorer.Compare(target, found, share);
         lock (_gate)
         {
             var s = _hunts[huntId];

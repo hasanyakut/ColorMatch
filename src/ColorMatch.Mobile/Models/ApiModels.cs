@@ -27,8 +27,8 @@ public sealed record DailyHuntResult(
     int XpAwarded, bool FirstCompletion, int BestScore, bool IsNewBest, int BonusXpAwarded, int CompletedCount, bool AllCompleted,
     int TotalXp, int Level, bool LeveledUp, string Title, bool TitleChanged, int CurrentStreak, bool StreakExtended, string PhotoKey, string PhotoUrl, AtlasUnlock? AtlasUnlock = null, BingoResult? Bingo = null, DuelAttemptResult? Duel = null, RegionInfo? Region = null);
 
-/// <summary>Where the server measured the colour on the photo (it chooses the spot itself): centre as a fraction of width / height, radius as a fraction of the shorter side.</summary>
-public sealed record RegionInfo(double X, double Y, double Radius);
+/// <summary>Where the server measured the colour on the photo (it chooses the spot itself): centre as a fraction of width / height, radius as a fraction of the shorter side, share = part of the whole picture that has this colour (the score is weighted by it).</summary>
+public sealed record RegionInfo(double X, double Y, double Radius, double Share = 1);
 
 // ---- the last seven game days (week strip on the home screen) ----
 public sealed record WeekDay(DateOnly Date, int Completed, int Total, bool IsToday);

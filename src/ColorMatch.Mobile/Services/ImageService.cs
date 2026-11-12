@@ -7,7 +7,7 @@ namespace ColorMatch.Mobile.Services;
 
 public sealed record PreparedPhoto(string Path, int Width, int Height);
 
-public sealed record ColorPreview(Rgb Found, double DeltaE, int Score, int UsedPixels);
+public sealed record ColorPreview(Rgb Found, double DeltaE, int Score, int UsedPixels, double Share = 1);
 
 /// <summary>Skia based image helpers: upright normalisation, region sampling and the instant on-device preview.</summary>
 public sealed class ImageService
@@ -149,8 +149,8 @@ public sealed class PhotoSampler(SKBitmap bitmap) : IDisposable
         var pixels = SampleCircle(region.X, region.Y, region.Radius);
         if (pixels.Count < 9) return (null, region);
         var analysis = RegionColorAnalyzer.Analyze(pixels);
-        var match = MatchScorer.Compare(target, analysis.Color);
-        return (new ColorPreview(analysis.Color, match.DeltaE, match.Score, analysis.UsedPixels), region);
+        var match = MatchScorer.Compare(target, analysis.Color, region.ColorShare);
+        return (new ColorPreview(analysis.Color, match.DeltaE, match.Score, analysis.UsedPixels, region.ColorShare), region);
     }
 
     public void Dispose() => bitmap.Dispose();

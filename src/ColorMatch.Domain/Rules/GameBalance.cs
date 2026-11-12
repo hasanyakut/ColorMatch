@@ -45,8 +45,8 @@ public sealed class DailyHuntBalance
     public int MediumXp { get; set; } = 200;
     public int HardXp { get; set; } = 350;
 
-    /// <summary>Minimum score that counts as a completed hunt (and keeps the streak alive). 700 ≈ ΔE00 5.3.</summary>
-    public int MinScore { get; set; } = 700;
+    /// <summary>Minimum score that counts as a completed hunt (and keeps the streak alive). 500 ≈ ΔE00 10.4 for a colour that fills the picture; a colour that covers little of it scores less (see ColorWeight).</summary>
+    public int MinScore { get; set; } = 500;
 
     /// <summary>Extra XP once all three hunts of a day are completed.</summary>
     public int CompletionBonusXp { get; set; } = 150;
@@ -92,7 +92,7 @@ public sealed class BingoBalance
     public int LineXp { get; set; } = 100;
     public int BoardCompleteXp { get; set; } = 400;
     /// <summary>Minimum score for a square to count (same bar as a daily hunt).</summary>
-    public int MinScore { get; set; } = 700;
+    public int MinScore { get; set; } = 500;
     /// <summary>Upper bound of attempts per square: keeps uploads and brute-force guessing in check.</summary>
     public int MaxAttemptsPerCell { get; set; } = 10;
 }

@@ -1,5 +1,6 @@
 using ColorMatch.ColorEngine.ColorAnalysis;
 using ColorMatch.ColorEngine.ColorConversion;
+using ColorMatch.ColorEngine.ColorScoring;
 
 namespace ColorMatch.Mobile.Services;
 
@@ -21,14 +22,23 @@ public static class ColorHints
         _ => "daha mavimsi",
     };
 
-    /// <summary>"Daha açık ve daha sarımsı bir ton ara." — empty when there is nothing useful to say.</summary>
-    public static string Describe(string targetHex, string? foundHex, int score)
+    /// <summary>
+    /// "Daha açık ve daha sarımsı bir ton ara." and, when the colour covers little of the picture, "Bu renk görselde küçük bir yer tutuyor: nesneye yaklaş."
+    /// Empty when there is nothing useful to say.
+    /// </summary>
+    public static string Describe(string targetHex, string? foundHex, int score, double share = 1)
     {
         if (score >= GoodEnough || string.IsNullOrEmpty(foundHex)) return "";
         if (!Rgb.TryParseHex(targetHex, out var target) || !Rgb.TryParseHex(foundHex, out var found)) return "";
+        var parts = new List<string>();
         var tips = ColorAdvice.For(target, found);
-        if (tips.Count == 0) return "";
-        var text = string.Join(" ve ", tips.Select(Word));
-        return char.ToUpper(text[0], new System.Globalization.CultureInfo("tr-TR")) + text[1..] + " bir ton ara.";
+        if (tips.Count > 0)
+        {
+            var text = string.Join(" ve ", tips.Select(Word));
+            parts.Add(char.ToUpper(text[0], new System.Globalization.CultureInfo("tr-TR")) + text[1..] + " bir ton ara.");
+        }
+        // the colour is right but fills too little of the picture: the weight, not the shade, is what costs points
+        if (share < ColorWeight.FullCreditShare * 0.7) parts.Add("Bu renk görselde küçük bir yer tutuyor: nesneye yaklaş ya da yakınlaştır.");
+        return string.Join(" ", parts);
     }
 }

@@ -59,7 +59,7 @@ public class DailyHuntApiTests(ApiFactory factory)
         Assert.Equal(da.Hunts.Select(h => (h.Id, h.Hex)), db.Hunts.Select(h => (h.Id, h.Hex)));
         Assert.Equal(3, da.Hunts.Select(h => h.Hex).Distinct().Count());
         Assert.Equal(new[] { 100, 200, 350 }, da.Hunts.Select(h => h.BaseXp));
-        Assert.All(da.Hunts, h => { Assert.Equal(700, h.MinScore); Assert.False(h.Completed); Assert.Equal(0, h.Attempts); });
+        Assert.All(da.Hunts, h => { Assert.Equal(500, h.MinScore); Assert.False(h.Completed); Assert.Equal(0, h.Attempts); });
         Assert.True(da.ResetsAtUtc > DateTime.UtcNow);
 
         // every hunt colour is a Color Atlas colour of the matching difficulty
@@ -123,7 +123,7 @@ public class DailyHuntApiTests(ApiFactory factory)
 
         var r = await Attempt(c, hard.Id, Wrong(hard));
         Assert.False(r.Passed);
-        Assert.True(r.Score < 700);
+        Assert.True(r.Score < 500);
         Assert.Equal(0, r.XpAwarded);
         Assert.False(r.FirstCompletion);
         Assert.Equal(0, r.CompletedCount);

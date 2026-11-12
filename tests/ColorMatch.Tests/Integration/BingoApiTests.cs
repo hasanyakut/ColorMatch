@@ -66,7 +66,7 @@ public class BingoApiTests(ApiFactory factory)
         Assert.Equal(8, board.Lines.Count);
         Assert.All(board.Cells, x => { Assert.False(x.Completed); Assert.Equal(0, x.Attempts); Assert.Equal(10, x.AttemptsLeft); });
         Assert.Equal(0, board.CompletedLines);
-        Assert.Equal((100, 400, 700), (board.LineXp, board.BoardXp, board.MinScore));
+        Assert.Equal((100, 400, 500), (board.LineXp, board.BoardXp, board.MinScore));
 
         var again = await Board(c);
         Assert.Equal(board.BoardId, again.BoardId);   // one active board

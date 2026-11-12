@@ -91,7 +91,7 @@ public class BingoRulesTests
         var b = new GameBalance().Bingo;
         Assert.Equal(100, b.LineXp);
         Assert.Equal(400, b.BoardCompleteXp);
-        Assert.Equal(700, b.MinScore);
+        Assert.Equal(500, b.MinScore);
         Assert.Equal(10, b.MaxAttemptsPerCell);
     }
 }

@@ -95,7 +95,7 @@
                     </VerticalStackLayout>
                 </VerticalStackLayout>
 
-                <Label Text="Bir kare, o renge en az 700 puan veren ilk fotoğrafla tamamlanır. Aynı fotoğraf iki kareyi doldurmaz; her karede 10 deneme hakkın var."
+                <Label Text="Bir kare, o renge en az 500 puan veren ilk fotoğrafla tamamlanır. Aynı fotoğraf iki kareyi doldurmaz; her karede 10 deneme hakkın var."
                        Style="{StaticResource Caption}" />
             </VerticalStackLayout>
         </VerticalStackLayout>

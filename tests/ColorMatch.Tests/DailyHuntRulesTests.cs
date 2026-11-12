@@ -68,7 +68,7 @@ public class DailyHuntRulesTests
     {
         var b = new GameBalance().DailyHunt;
         Assert.Equal((100, 200, 350), (b.XpFor(HuntDifficulty.Easy), b.XpFor(HuntDifficulty.Medium), b.XpFor(HuntDifficulty.Hard)));
-        Assert.Equal(700, b.MinScore);
+        Assert.Equal(500, b.MinScore);
         Assert.True(b.CompletionBonusXp > 0);
     }
 }
